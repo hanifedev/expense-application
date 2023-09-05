@@ -1,6 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">expense-application</string>
     <string name="password">Password</string>
-    <string name="sign_in_button_text">Sign in</string>
     <string name="username">Username</string>
+    <string name="sign_in_button_text">Sign in</string>
 </resources>
