@@ -21,46 +21,49 @@ class AddExpenseViewModel : ViewModel() {
 
      fun saveExpenses(expenses: List<ExpenseModel>) {
          viewModelScope.launch(Dispatchers.IO) {
-        try {
-            val expensesRef = Firebase.database.getReference("expenses")
-            val documentKey = expensesRef.push().key
+             try {
+                 val expensesRef = Firebase.database.getReference("expenses")
 
-            if (documentKey != null) {
-                expensesRef.child(documentKey).setValue(expenses)
-                    .addOnSuccessListener {
-                        saveExpenseStatus(documentKey)
-                    }
-                    .addOnFailureListener { e ->
-                        FirebaseCrashlytics.getInstance().recordException(e)
-                        _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${e.message}"))
-                    }
-            } else {
-                _addExpenseResponse.postValue(Result.Error("Belge kimliği oluşturulamadı."))
-            }
-        } catch (e: Exception) {
-            _addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${e.message}"))
-            ErrorUtils.addErrorToDatabase(e, "")
-            FirebaseCrashlytics.getInstance().recordException(e)
-        }
+                 for (expense in expenses) {
+                     val documentKey = expensesRef.push().key
+
+                     if (documentKey != null) {
+                         expensesRef.child(documentKey).setValue(expense)
+                             .addOnSuccessListener {
+                                 saveExpenseStatus(documentKey)
+                             }
+                             .addOnFailureListener { e ->
+                                 FirebaseCrashlytics.getInstance().recordException(e)
+                                 _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${e.message}"))
+                             }
+                     } else {
+                         _addExpenseResponse.postValue(Result.Error("Belge kimliği oluşturulamadı."))
+                     }
+                 }
+             } catch (e: Exception) {
+                 _addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${e.message}"))
+                 ErrorUtils.addErrorToDatabase(e, "")
+                 FirebaseCrashlytics.getInstance().recordException(e)
+             }
          }
      }
 
     private fun saveExpenseStatus(expenseId: String) {
         try {
-            val expenseRef = Firebase.database.getReference("expenses").child(expenseId).child("expenseStatus")
+            val expenseRef = Firebase.database.getReference("expenseStatus")
 
-            val expenseStatusModel = ExpenseStatusModel(false, false, "", false)
+            val expenseStatusModel = ExpenseStatusModel(false, false, "", false, expenseId)
             expenseRef.setValue(expenseStatusModel)
                 .addOnSuccessListener {
-                    addExpenseResponse.postValue(Result.Success(true))
+                    _addExpenseResponse.postValue(Result.Success(true))
                 }
                 .addOnFailureListener { e ->
-                    addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${e.message}"))
+                    _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${e.message}"))
                     ErrorUtils.addErrorToDatabase(e, "")
                     FirebaseCrashlytics.getInstance().recordException(e)
                 }
         } catch (e: Exception) {
-            addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${e.message}"))
+            _addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${e.message}"))
             ErrorUtils.addErrorToDatabase(e, "")
             FirebaseCrashlytics.getInstance().recordException(e)
         }
