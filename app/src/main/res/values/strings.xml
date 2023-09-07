@@ -6,4 +6,7 @@
     <string name="email">Email</string>
     <string name="register_button_text">Sign Up</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="amount">Amount\n</string>
+    <string name="description">Description</string>
+    <string name="add_button_text">Add</string>
 </resources>

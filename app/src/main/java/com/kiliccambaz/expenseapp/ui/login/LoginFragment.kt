@@ -7,13 +7,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.data.UserRole
 import com.kiliccambaz.expenseapp.databinding.FragmentLoginBinding
-import com.kiliccambaz.expenseapp.ui.employee.ExpenseListFragment
+import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseListFragment
 import com.kiliccambaz.expenseapp.ui.register.RegisterFragment
 import com.kiliccambaz.expenseapp.utils.ValidationHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
@@ -25,6 +29,8 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLoginBinding.inflate(layoutInflater)
+        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+
         binding!!.btnSignIn.setOnClickListener {
             val email = binding!!.etEmail.text.toString()
             if (email.isEmpty()) {
@@ -41,28 +47,27 @@ class LoginFragment : Fragment() {
                     loginViewModel.signInWithEmailAndPassword(email, password) { result ->
                         when (result) {
                             is Result.Success -> {
-                                val userRole = UserRole.valueOf(result.data)
-                                when (userRole) {
-                                    UserRole.Employee -> {
-                                        val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                                        transaction.replace(R.id.fragment_container, ExpenseListFragment())
-                                        transaction.addToBackStack(null)
-                                        transaction.commit()
+                                when (result.data) {
+                                    1 -> {
+                                        val action = LoginFragmentDirections.actionFragmentLoginToExpenseListFragment()
+                                        findNavController().navigate(action)
                                     }
-                                    UserRole.Manager -> {
+                                    2 -> {
                                         // Yöneticinin yapabileceği işlemler
                                     }
-                                    UserRole.Accountant -> {
+                                    3 -> {
 
                                     }
-                                    UserRole.Admin -> {
+                                    4 -> {
                                         // Adminin yapabileceği işlemler
                                     }
                                 }
                             }
                             is Result.Error -> {
-                                val errorMessage = result.message
-                                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                                GlobalScope.launch(Dispatchers.Main) {
+                                    val errorMessage = result.message
+                                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
                     }
@@ -71,18 +76,11 @@ class LoginFragment : Fragment() {
         }
 
         binding!!.tvRegister.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragment_container, RegisterFragment())
-            transaction.addToBackStack(null)
-            transaction.commit()
+            val action = LoginFragmentDirections.actionFragmentLoginToRegisterFragment()
+            findNavController().navigate(action)
         }
 
         return binding!!.root
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
     }
 
 }

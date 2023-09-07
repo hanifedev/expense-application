@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/fragmentLogin">
+
+    <fragment
+        android:id="@+id/fragmentLogin"
+        android:name="com.kiliccambaz.expenseapp.ui.login.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_fragmentLogin_to_expenseListFragment"
+            app:destination="@id/expenseListFragment" />
+        <action
+            android:id="@+id/action_fragmentLogin_to_registerFragment"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/expenseListFragment"
+        android:name="com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseListFragment"
+        android:label="fragment_expense_list"
+        tools:layout="@layout/fragment_expense_list" >
+        <action
+            android:id="@+id/action_expenseListFragment_to_addExpenseFragment"
+            app:destination="@id/addExpenseFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.kiliccambaz.expenseapp.ui.register.RegisterFragment"
+        android:label="RegisterFragment" />
+    <fragment
+        android:id="@+id/addExpenseFragment"
+        android:name="com.kiliccambaz.expenseapp.ui.employee.addexpense.AddExpenseFragment"
+        android:label="fragment_add_expense"
+        tools:layout="@layout/fragment_add_expense" />
+</navigation>

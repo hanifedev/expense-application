@@ -63,6 +63,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:24.7.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
+    implementation("com.google.firebase:firebase-database-ktx:20.2.2")
     kapt("com.google.dagger:hilt-compiler:2.44")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.employee.ExpenseListFragment">
+    tools:context=".ui.employee.expenses.ExpenseListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/expenseRecyclerView"
+        android:id="@+id/rvExpenseList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
@@ -20,7 +20,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/baseline_add_24"
         app:backgroundTint="@color/material_dynamic_tertiary60"
-        app:layout_anchor="@id/expenseRecyclerView"
+        app:layout_anchor="@id/rvExpenseList"
         app:layout_anchorGravity="bottom|right|end" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -21,6 +21,7 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentRegisterBinding.inflate(layoutInflater)
+        registerViewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
         binding!!.btnRegister.setOnClickListener {
             val email = binding!!.etEmail.text.toString()
             if (email.isEmpty()) {
@@ -60,11 +61,6 @@ class RegisterFragment : Fragment() {
             }
         }
         return binding!!.root
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        registerViewModel = ViewModelProvider(this).get(RegisterViewModel::class.java)
     }
 
 }

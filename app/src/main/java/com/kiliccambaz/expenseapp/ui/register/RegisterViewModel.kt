@@ -1,51 +1,46 @@
 package com.kiliccambaz.expenseapp.ui.register
 
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.Timestamp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import com.kiliccambaz.expenseapp.data.ErrorModel
 import com.kiliccambaz.expenseapp.data.Result
+import com.kiliccambaz.expenseapp.data.UserModel
+import com.kiliccambaz.expenseapp.utils.ErrorUtils
+import com.kiliccambaz.expenseapp.utils.HashUtils
 
 class RegisterViewModel : ViewModel() {
-
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    val firestore = FirebaseFirestore.getInstance()
 
     fun registerWithEmailAndPassword(
         email: String,
         password: String,
-        onRegisterComplete: (Result<FirebaseUser>) -> Unit
+        onRegisterComplete: (Result<String>) -> Unit
     ) {
         try {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val user = auth.currentUser
-                        user?.let {
-                            val userMap = hashMapOf(
-                                "uid" to user.uid,
-                                "email" to email,
-                                "role" to "Manager"
-                            )
+            val usersReference = Firebase.database.reference.child("users")
 
-                            firestore.collection("users").document(user.uid)
-                                .set(userMap)
-                                .addOnSuccessListener {
-                                    onRegisterComplete(Result.Success(user))
-                                }
-                                .addOnFailureListener { e ->
-                                    onRegisterComplete(Result.Error("Firestore kaydetme hatası: ${e.message}"))
-                                }
-                        }
-                    } else {
-                        val errorMessage = task.exception?.message ?: "Kayıt işlemi başarısız oldu."
-                        onRegisterComplete(Result.Error(errorMessage))
-                    }
+            val user = UserModel(
+                email = email,
+                password = HashUtils.hashPassword(password),
+                role = 1,
+                managerId = "-Ndj8KEUEI5KmBhOqnJr"
+            )
+
+            usersReference.push().setValue(user) { databaseError, _ ->
+                if (databaseError == null) {
+                    onRegisterComplete(Result.Success("Kayıt başarılı"))
+                } else {
+                    onRegisterComplete(Result.Error("Firebase kaydetme hatası: ${databaseError.message}"))
                 }
+            }
         } catch (e: Exception) {
+            ErrorUtils.addErrorToDatabase(e, "")
             FirebaseCrashlytics.getInstance().recordException(e)
             onRegisterComplete(Result.Error("Kayıt işlemi başarısız oldu."))
         }
     }
+
+
 }
