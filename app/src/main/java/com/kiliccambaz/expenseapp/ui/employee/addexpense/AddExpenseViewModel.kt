@@ -8,7 +8,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseModel
-import com.kiliccambaz.expenseapp.data.ExpenseStatusModel
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +29,7 @@ class AddExpenseViewModel : ViewModel() {
                      if (documentKey != null) {
                          expensesRef.child(documentKey).setValue(expense)
                              .addOnSuccessListener {
-                                 saveExpenseStatus(documentKey)
+                                 _addExpenseResponse.postValue(Result.Success(true))
                              }
                              .addOnFailureListener { e ->
                                  FirebaseCrashlytics.getInstance().recordException(e)
@@ -47,26 +46,5 @@ class AddExpenseViewModel : ViewModel() {
              }
          }
      }
-
-    private fun saveExpenseStatus(expenseId: String) {
-        try {
-            val expenseRef = Firebase.database.getReference("expenseStatus")
-
-            val expenseStatusModel = ExpenseStatusModel(false, false, "", false, expenseId)
-            expenseRef.setValue(expenseStatusModel)
-                .addOnSuccessListener {
-                    _addExpenseResponse.postValue(Result.Success(true))
-                }
-                .addOnFailureListener { e ->
-                    _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${e.message}"))
-                    ErrorUtils.addErrorToDatabase(e, "")
-                    FirebaseCrashlytics.getInstance().recordException(e)
-                }
-        } catch (e: Exception) {
-            _addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${e.message}"))
-            ErrorUtils.addErrorToDatabase(e, "")
-            FirebaseCrashlytics.getInstance().recordException(e)
-        }
-    }
 
 }

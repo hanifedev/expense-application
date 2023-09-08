@@ -6,7 +6,32 @@
     <string name="email">Email</string>
     <string name="register_button_text">Sign Up</string>
     <string name="confirm_password">Confirm Password</string>
-    <string name="amount">Amount\n</string>
+    <string name="amount">Amount</string>
     <string name="description">Description</string>
     <string name="add_button_text">Add</string>
+    <string name="expense_type">Select expense type\n</string>
+    <string name="currency_type">Currency Type</string>
+    <string name="add_expense_text">Add Your Expenses</string>
+    <string name="save_button_text">Save</string>
+    <string name="add_new_expense_text">Add New Expense</string>
+    <string-array name="expense_types">
+        <item>Gas</item>
+        <item>Taxi</item>
+        <item>Food</item>
+        <item>Accommodation</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="currency_types">
+        <item>TL</item>
+        <item>EUR</item>
+        <item>USD</item>
+        <item>PKR</item>
+        <item>INR</item>
+    </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="waiting_expenses_text">Waiting Approval Expenses</string>
+    <string name="approve_text">Approve</string>
+    <string name="reject_text">Reject</string>
+    <string name="reject_reason_text">Değişiklik nedeni</string>
 </resources>

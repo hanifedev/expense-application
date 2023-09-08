@@ -1,0 +1,42 @@
+package com.kiliccambaz.expenseapp.ui.manager
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.RecyclerView
+import com.kiliccambaz.expenseapp.BR
+import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.databinding.WaitingExpenseListBinding
+
+class WaitingExpensesAdapter(private val clickListener: WaitingExpenseAdapterClickListener) : RecyclerView.Adapter<WaitingExpensesAdapter.WaitingExpenseViewHolder>() {
+
+    class WaitingExpenseViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(expenseModel: ExpenseModel, clickListener: WaitingExpenseAdapterClickListener, position: Int) {
+            binding.setVariable(BR.clickListener, clickListener)
+            binding.setVariable(BR.expenseModel, expenseModel)
+            binding.setVariable(BR.position, position)
+        }
+    }
+
+    private var expenseList: List<ExpenseModel> = arrayListOf()
+
+    fun updateList(expenseList: List<ExpenseModel>) {
+        this.expenseList = expenseList
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WaitingExpenseViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val binding = WaitingExpenseListBinding.inflate(layoutInflater, parent,false)
+        return WaitingExpenseViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: WaitingExpenseViewHolder, position: Int) {
+        val expense = expenseList[position]
+        holder.bind(expense, clickListener, position)
+    }
+
+    override fun getItemCount() = expenseList.size
+
+}

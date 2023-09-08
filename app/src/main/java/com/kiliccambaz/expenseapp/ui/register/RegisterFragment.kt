@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.kiliccambaz.expenseapp.databinding.FragmentRegisterBinding
 import com.kiliccambaz.expenseapp.data.Result
-import com.kiliccambaz.expenseapp.utils.ValidationHelper
+import com.kiliccambaz.expenseapp.utils.ValidationUtils
 
 class RegisterFragment : Fragment() {
 
@@ -26,7 +26,7 @@ class RegisterFragment : Fragment() {
             val email = binding!!.etEmail.text.toString()
             if (email.isEmpty()) {
                 binding!!.etEmailInputLayout.error = "E-posta alanı boş olamaz"
-            } else if (!ValidationHelper.isEmailValid(email)) {
+            } else if (!ValidationUtils.isEmailValid(email)) {
                 binding!!.etEmailInputLayout.error = "Geçerli bir e-posta giriniz"
             } else {
                 binding!!.etEmailInputLayout.error = null

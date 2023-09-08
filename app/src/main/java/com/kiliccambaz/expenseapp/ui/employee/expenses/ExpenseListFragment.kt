@@ -47,4 +47,9 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        expenseListViewModel.fetchExpenseListFromDatabase()
+    }
+
 }

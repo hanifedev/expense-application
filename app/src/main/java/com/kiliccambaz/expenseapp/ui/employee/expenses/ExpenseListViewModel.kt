@@ -21,17 +21,12 @@ class ExpenseListViewModel : ViewModel() {
     private val _expenseList = MutableLiveData<List<ExpenseModel>>()
     val expenseList : LiveData<List<ExpenseModel>> = _expenseList
 
-    init {
-        fetchExpenseListFromDatabase { list ->
-            _expenseList.value = list
-        }
-    }
-
-    private fun fetchExpenseListFromDatabase(onExpenseListFetched: (List<ExpenseModel>) -> Unit) {
+    fun fetchExpenseListFromDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
         val databaseReference = Firebase.database.reference.child("expenses")
+            val query = databaseReference.orderByChild("userId").equalTo("-Ndj8cP7h0zzHXNRT1g2")
 
-        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
                     val expenseList = mutableListOf<ExpenseModel>()
@@ -41,9 +36,9 @@ class ExpenseListViewModel : ViewModel() {
                         expense?.let { expenseList.add(it) }
                     }
 
-                    onExpenseListFetched(expenseList)
+                    _expenseList.value = expenseList
                 } else {
-                    onExpenseListFetched(emptyList())
+                    _expenseList.value = emptyList()
                 }
             }
 
@@ -51,7 +46,7 @@ class ExpenseListViewModel : ViewModel() {
                 val errorMessage = "Firebase Database error: ${databaseError.message}"
                 ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
                 FirebaseCrashlytics.getInstance().recordException(Exception(errorMessage))
-                onExpenseListFetched(emptyList())
+                _expenseList.value = emptyList()
             }
         })
         }

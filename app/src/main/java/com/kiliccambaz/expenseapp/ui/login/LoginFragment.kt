@@ -8,13 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.Result
-import com.kiliccambaz.expenseapp.data.UserRole
 import com.kiliccambaz.expenseapp.databinding.FragmentLoginBinding
-import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseListFragment
-import com.kiliccambaz.expenseapp.ui.register.RegisterFragment
-import com.kiliccambaz.expenseapp.utils.ValidationHelper
+import com.kiliccambaz.expenseapp.utils.ValidationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -35,7 +31,7 @@ class LoginFragment : Fragment() {
             val email = binding!!.etEmail.text.toString()
             if (email.isEmpty()) {
                 binding!!.etEmailInputLayout.error = "E-posta alanı boş olamaz"
-            } else if (!ValidationHelper.isEmailValid(email)) {
+            } else if (!ValidationUtils.isEmailValid(email)) {
                 binding!!.etEmailInputLayout.error = "Geçerli bir e-posta giriniz"
             } else {
                 binding!!.etEmailInputLayout.error = null
@@ -53,7 +49,8 @@ class LoginFragment : Fragment() {
                                         findNavController().navigate(action)
                                     }
                                     2 -> {
-                                        // Yöneticinin yapabileceği işlemler
+                                        val action = LoginFragmentDirections.actionFragmentLoginToWaitingExpensesFragment()
+                                        findNavController().navigate(action)
                                     }
                                     3 -> {
 
