@@ -4,17 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.manager.WaitingExpensesFragment">
+    tools:context=".ui.employee.expenses.ExpenseListFragment">
 
     <include
         android:id="@+id/toolbar"
         layout="@layout/filter_toolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvWaitingExpenseList"
+        android:id="@+id/rv_history_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

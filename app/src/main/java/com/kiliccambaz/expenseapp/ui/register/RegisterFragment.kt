@@ -14,32 +14,35 @@ import com.kiliccambaz.expenseapp.utils.ValidationUtils
 class RegisterFragment : Fragment() {
 
     private lateinit var registerViewModel: RegisterViewModel
-    private var binding: FragmentRegisterBinding? = null
+    private var _binding: FragmentRegisterBinding? = null
+
+    private val binding get() = _binding!!
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentRegisterBinding.inflate(layoutInflater)
+        _binding = FragmentRegisterBinding.inflate(layoutInflater)
         registerViewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
-        binding!!.btnRegister.setOnClickListener {
-            val email = binding!!.etEmail.text.toString()
+        binding.btnRegister.setOnClickListener {
+            val email = binding.etEmail.text.toString()
             if (email.isEmpty()) {
-                binding!!.etEmailInputLayout.error = "E-posta alanı boş olamaz"
+                binding.etEmailInputLayout.error = "E-posta alanı boş olamaz"
             } else if (!ValidationUtils.isEmailValid(email)) {
-                binding!!.etEmailInputLayout.error = "Geçerli bir e-posta giriniz"
+                binding.etEmailInputLayout.error = "Geçerli bir e-posta giriniz"
             } else {
-                binding!!.etEmailInputLayout.error = null
-                val password = binding!!.etPassword.text.toString()
+                binding.etEmailInputLayout.error = null
+                val password = binding.etPassword.text.toString()
                 if (password.isEmpty()) {
-                    binding!!.etPasswordInputLayout.error = "Parola alanı boş olamaz"
+                    binding.etPasswordInputLayout.error = "Parola alanı boş olamaz"
                 } else {
-                    binding!!.etPasswordInputLayout.error = null
+                    binding.etPasswordInputLayout.error = null
                     val confirmPassword = binding!!.etConfirmPassword.text.toString()
                     if (confirmPassword.isEmpty()) {
-                        binding!!.etConfirmPassword.error = "Parola alanı boş olamaz"
+                        binding.etConfirmPassword.error = "Parola alanı boş olamaz"
                     } else {
-                        binding!!.etPasswordInputLayout.error = null
+                        binding.etPasswordInputLayout.error = null
                         if(password == confirmPassword) {
                             registerViewModel.registerWithEmailAndPassword(email, password) { result ->
                                 when (result) {
@@ -60,7 +63,12 @@ class RegisterFragment : Fragment() {
                 }
             }
         }
-        return binding!!.root
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

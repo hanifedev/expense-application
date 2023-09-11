@@ -27,6 +27,7 @@ class AddExpenseViewModel : ViewModel() {
                      val documentKey = expensesRef.push().key
 
                      if (documentKey != null) {
+                         expense.expenseId = documentKey
                          expensesRef.child(documentKey).setValue(expense)
                              .addOnSuccessListener {
                                  _addExpenseResponse.postValue(Result.Success(true))

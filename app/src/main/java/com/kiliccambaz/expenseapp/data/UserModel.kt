@@ -4,6 +4,5 @@ data class UserModel(
     val email: String = "",
     val managerId: String = "",
     val password: String = "",
-    val role: Int = 0,
-    val userId: String = ""
+    val role: Int = 0
 )

@@ -11,7 +11,6 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseModel
-import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,8 +31,14 @@ class ExpenseListViewModel : ViewModel() {
                     val expenseList = mutableListOf<ExpenseModel>()
 
                     for (expenseSnapshot in dataSnapshot.children) {
+                        val expenseId = expenseSnapshot.key
                         val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
-                        expense?.let { expenseList.add(it) }
+                        expense?.let {
+                            if (expenseId != null) {
+                                expense.expenseId = expenseId
+                            }
+                            expenseList.add(it)
+                        }
                     }
 
                     _expenseList.value = expenseList

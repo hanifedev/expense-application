@@ -17,6 +17,8 @@
     <string name="approve_text">Approve</string>
     <string name="reject_text">Reject</string>
     <string name="reject_reason_text">Değişiklik nedeni</string>
+    <string name="title_reports">Reports</string>
+    <string name="pay_text">Pay</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>

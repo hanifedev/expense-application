@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
@@ -26,16 +28,19 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentWaitingExpensesBinding.inflate(layoutInflater)
+        binding!!.toolbar.toolbarTitle.text = "Waiting Expense List"
         waitingViewModel = ViewModelProvider(this)[WaitingExpensesViewModel::class.java]
-
         waitingExpensesAdapter = WaitingExpensesAdapter(this)
         binding!!.rvWaitingExpenseList.layoutManager = LinearLayoutManager(requireContext())
         binding!!.rvWaitingExpenseList.adapter = waitingExpensesAdapter
-
         waitingViewModel.expenseList.observe(viewLifecycleOwner) { expenseList ->
             expenseList?.let {
                 waitingExpensesAdapter.updateList(expenseList)
             }
+        }
+
+        binding!!.toolbar.filterIcon.setOnClickListener {
+            showFilterPopup()
         }
 
         return binding!!.root
@@ -66,6 +71,47 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
             waitingViewModel.updateExpense(expenseModel)
         }
         builder.setNegativeButton("Vazgeç") { _, _ -> }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun showFilterPopup() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Filtreleme")
+
+        // Filtre seçeneklerini içeren bir görünümü yükleyin
+        val view = layoutInflater.inflate(R.layout.filter_status_options, null)
+        builder.setView(view)
+
+        val checkBoxPending = view.findViewById<CheckBox>(R.id.checkBoxPending)
+        val checkBoxApproved = view.findViewById<CheckBox>(R.id.checkBoxApproved)
+        val checkBoxPaid = view.findViewById<CheckBox>(R.id.checkBoxPaid)
+
+        checkBoxPending.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+
+            }
+        }
+
+        checkBoxApproved.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+
+            }
+        }
+
+        checkBoxPaid.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+
+            }
+        }
+
+        builder.setPositiveButton("Tamam") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("İptal") { dialog, _ ->
+            dialog.dismiss()
+        }
 
         val dialog = builder.create()
         dialog.show()

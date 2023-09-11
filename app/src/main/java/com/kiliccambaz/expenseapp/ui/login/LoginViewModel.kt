@@ -38,6 +38,8 @@ class LoginViewModel : ViewModel() {
                                 if (user != null && user.password == hashedPassword) {
                                     val userRole = user.role
                                     if (userRole != null) {
+                                        val userId = userSnapshot.key
+
                                         onLoginComplete(Result.Success(userRole))
                                         return
                                     } else {

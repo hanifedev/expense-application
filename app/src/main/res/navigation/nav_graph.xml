@@ -19,6 +19,13 @@
         <action
             android:id="@+id/action_fragmentLogin_to_waitingExpensesFragment"
             app:destination="@id/waitingExpensesFragment" />
+        <action
+            android:id="@+id/action_fragmentLogin_to_approvedExpenseListFragment"
+            app:destination="@id/approvedExpenseListFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@animator/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -44,4 +51,9 @@
         android:name="com.kiliccambaz.expenseapp.ui.manager.WaitingExpensesFragment"
         android:label="fragment_waiting_expenses"
         tools:layout="@layout/fragment_waiting_expenses" />
+    <fragment
+        android:id="@+id/approvedExpenseListFragment"
+        android:name="com.kiliccambaz.expenseapp.ui.accountant.ApprovedExpenseListFragment"
+        android:label="fragment_approved_expense_list_list"
+        tools:layout="@layout/fragment_approved_expense_list_list" />
 </navigation>
