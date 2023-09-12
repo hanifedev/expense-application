@@ -51,7 +51,10 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
     }
 
     override fun onRecyclerViewItemClick(model: ExpenseModel, position: Int) {
-
+        if(model.statusId == 1) {
+            val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment()
+            findNavController().navigate(action)
+        }
     }
 
 

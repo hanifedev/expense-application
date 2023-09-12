@@ -54,6 +54,6 @@
     <fragment
         android:id="@+id/approvedExpenseListFragment"
         android:name="com.kiliccambaz.expenseapp.ui.accountant.ApprovedExpenseListFragment"
-        android:label="fragment_approved_expense_list_list"
-        tools:layout="@layout/fragment_approved_expense_list_list" />
+        android:label="fragment_approved_expense_list"
+        tools:layout="@layout/fragment_approved_expense_list" />
 </navigation>

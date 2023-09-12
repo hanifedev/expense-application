@@ -26,7 +26,7 @@ class ExpensesViewModel : ViewModel() {
         fetchExpenseListFromDatabase()
     }
 
-    fun fetchExpenseListFromDatabase() {
+    private fun fetchExpenseListFromDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
             val databaseReference = Firebase.database.reference.child("expenses")
 

@@ -32,6 +32,7 @@
     <string name="change_status">Change Status</string>
     <string name="filter">Filter</string>
     <string name="cancel">Cancel</string>
+    <string name="total">Total</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>

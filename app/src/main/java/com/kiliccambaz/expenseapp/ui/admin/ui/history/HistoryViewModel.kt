@@ -33,7 +33,7 @@ class HistoryViewModel : ViewModel() {
         getExpenseHistoryList()
     }
 
-    fun getExpenseHistoryList() {
+    private fun getExpenseHistoryList() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val expensesRef = database.getReference("expenseHistory")

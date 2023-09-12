@@ -2,15 +2,19 @@ package com.kiliccambaz.expenseapp.ui.employee.addexpense
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputLayout
 import com.kiliccambaz.expenseapp.R
@@ -23,12 +27,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.Text
+import java.text.DecimalFormat
 
 class AddExpenseFragment : Fragment() {
 
     private lateinit var addExpenseViewModel: AddExpenseViewModel
     private var binding: FragmentAddExpenseBinding? = null
     private val expenseList = arrayListOf<ExpenseModel>()
+    private var currencySymbol = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +51,74 @@ class AddExpenseFragment : Fragment() {
         val arrayAdapterCurrency = ArrayAdapter(requireContext(), R.layout.dropdown_item, currencyTypes)
         binding!!.autoCompleteCurrencyType.setAdapter(arrayAdapterCurrency)
 
+        binding!!.autoCompleteCurrencyType.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                currencySymbol = when (s.toString()) {
+                    "TL" -> "₺"
+                    "USD" -> "$"
+                    "EUR" -> "€"
+                    "PKR" -> "₨"
+                    "INR" -> "₹"
+                    else -> ""
+                }
+                val totalAmount = binding!!.txtAmount.text
+                if (totalAmount != null) {
+                    if(totalAmount.isNotEmpty())  {
+                        convertDecimalFormat(totalAmount.toString().toDouble())
+
+                    }
+                }
+            }
+        })
+
+        binding!!.txtAmount.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val hasText = s?.isNotEmpty() == true
+
+                if (hasText) {
+                    if(s.toString().toDouble() < 5000) {
+                    binding!!.txtAmountInputLayout.error = null
+
+                    binding!!.cardTotal.visibility = View.VISIBLE
+                    val totalAmount = s.toString()
+                    val selectedCurrency = binding!!.autoCompleteCurrencyType.text.toString()
+
+                    currencySymbol = when (selectedCurrency) {
+                        "TL" -> "₺"
+                        "USD" -> "$"
+                        "EUR" -> "€"
+                        "PKR" -> "₨"
+                        "INR" -> "₹"
+                        else -> ""
+                    }
+
+                    convertDecimalFormat(totalAmount.toDouble())
+                    } else {
+                        binding!!.txtAmountInputLayout.error = "Amount must be greater than 5000"
+                    }
+                } else {
+                    binding!!.cardTotal.visibility = View.INVISIBLE
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
+
 
         binding!!.btnSaveExpense.setOnClickListener {
             val expenseType = binding!!.autoCompleteExpenseType.text
@@ -60,7 +134,10 @@ class AddExpenseFragment : Fragment() {
                     val amount = binding!!.txtAmount.text.toString()
                     if (amount.isEmpty()) {
                         binding!!.txtAmountInputLayout.error = "Tutar alanı boş bırakılamaz"
-                    } else {
+                    } else if(amount.toDouble() > 5000) {
+                        binding!!.txtAmountInputLayout.error = "Amount must be greater than 5000"
+                    }
+                    else {
                         binding!!.txtAmountInputLayout.error = null
                         val description = binding!!.txtDescription.text.toString()
                         if(description.isEmpty()) {
@@ -68,6 +145,7 @@ class AddExpenseFragment : Fragment() {
                         } else {
                             binding!!.txtDescriptionInputLayout.error = null
                             expenseList.add(ExpenseModel(amount = amount.toDouble(), date  = DateTimeUtils.getCurrentDateTimeAsString(), description = description, expenseType = expenseType.toString(), userId = UserManager.getUserId() ?: "", currencyType =  currencyType.toString()))
+                            binding!!.totalAmountTextview.text = expenseList.sumOf { it.amount }.toString()
                             addExpenseViewModel.saveExpenses(expenseList)
                         }
                     }
@@ -101,68 +179,29 @@ class AddExpenseFragment : Fragment() {
         return binding!!.root
     }
 
+    private fun convertDecimalFormat(amount: Double) {
+        val decimalFormat = DecimalFormat("#,###.###")
+        val formattedTotalAmount = decimalFormat.format(amount)
+
+        val totalAmountWithCurrency = "$currencySymbol $formattedTotalAmount"
+        binding!!.totalAmountTextview.text = totalAmountWithCurrency
+
+    }
+
     private fun addExpenseInput() {
-        val newDescriptionInputLayout = TextInputLayout(requireContext())
-        val newAmountInputLayout = TextInputLayout(requireContext())
-        val newExpenseTypeInputLayout = TextInputLayout(requireContext())
+        val layoutResId = R.layout.layout_expense_entry
 
-        newDescriptionInputLayout.id = View.generateViewId()
-        newAmountInputLayout.id = View.generateViewId()
-        newExpenseTypeInputLayout.id = View.generateViewId()
+        val inflater = LayoutInflater.from(context)
+        val inflatedLayout = inflater.inflate(layoutResId, null)
 
-        newDescriptionInputLayout.layoutParams = ConstraintLayout.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.WRAP_CONTENT
-        )
-        newAmountInputLayout.layoutParams = ConstraintLayout.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.WRAP_CONTENT
-        )
-        newExpenseTypeInputLayout.layoutParams = ConstraintLayout.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        val layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
-        newDescriptionInputLayout.hint = getString(R.string.description)
-        newAmountInputLayout.hint = getString(R.string.amount)
-        newExpenseTypeInputLayout.hint = getString(R.string.expense_type)
+        
 
-        binding!!.container.addView(newDescriptionInputLayout)
-        binding!!.container.addView(newAmountInputLayout)
-        binding!!.container.addView(newExpenseTypeInputLayout)
-
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(binding!!.container)
-
-        constraintSet.connect(
-            newDescriptionInputLayout.id,
-            ConstraintSet.TOP,
-            binding!!.btnAddExpense.id,
-            ConstraintSet.BOTTOM,
-            resources.getDimensionPixelSize(R.dimen.margin_16dp)
-        )
-
-        constraintSet.connect(newDescriptionInputLayout.id, ConstraintSet.START, newDescriptionInputLayout.id, ConstraintSet.START)
-        constraintSet.connect(newDescriptionInputLayout.id, ConstraintSet.END, newDescriptionInputLayout.id, ConstraintSet.END)
-
-
-        constraintSet.connect(
-            newAmountInputLayout.id,
-            ConstraintSet.TOP,
-            newDescriptionInputLayout.id,
-            ConstraintSet.BOTTOM,
-            resources.getDimensionPixelSize(R.dimen.margin_16dp)
-        )
-
-        constraintSet.connect(
-            newExpenseTypeInputLayout.id,
-            ConstraintSet.TOP,
-            newAmountInputLayout.id,
-            ConstraintSet.BOTTOM,
-            resources.getDimensionPixelSize(R.dimen.margin_16dp)
-        )
-
-        constraintSet.applyTo(binding!!.container)
+        binding!!.linearLayout.addView(inflatedLayout, layoutParams)
     }
 
 }
