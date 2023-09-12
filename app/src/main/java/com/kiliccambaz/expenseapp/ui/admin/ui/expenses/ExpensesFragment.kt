@@ -8,13 +8,19 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
+import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.databinding.FragmentExpensesBinding
+import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseAdapterClickListener
+import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseListAdapter
+import kotlin.math.exp
 
-class ExpensesFragment : Fragment() {
+class ExpensesFragment : Fragment(), ExpenseAdapterClickListener {
 
     private var _binding: FragmentExpensesBinding? = null
     private lateinit var expensesViewModel: ExpensesViewModel
+    private lateinit var expenseListAdapter : ExpenseListAdapter
 
     private val binding get() = _binding!!
 
@@ -28,13 +34,16 @@ class ExpensesFragment : Fragment() {
 
         _binding = FragmentExpensesBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        binding.toolbarTitle.text = "Expense List"
+        binding.toolbarExpensesTitle.text = "Expense List"
+        expenseListAdapter = ExpenseListAdapter( this)
+        binding.rvExpenseList.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvExpenseList.adapter = expenseListAdapter
 
         expensesViewModel.expenseList.observe(viewLifecycleOwner) { expenseList ->
-
+            expenseListAdapter.updateList(expenseList)
         }
 
-        binding.filterIcon.setOnClickListener {
+        binding.expensesFilterIcon.setOnClickListener {
             showFilterPopup()
         }
 
@@ -67,13 +76,13 @@ class ExpensesFragment : Fragment() {
             }
         }
 
-        builder.setPositiveButton("Tamam") { dialog, _ ->
+        builder.setPositiveButton(R.string.filter) { dialog, _ ->
             expensesViewModel.getExpensesFromStatus(selectedStatusTypes) { expenseList ->
-
+                expenseListAdapter.updateList(expenseList)
             }
             dialog.dismiss()
         }
-        builder.setNegativeButton("İptal") { dialog, _ ->
+        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
             dialog.dismiss()
         }
 
@@ -81,13 +90,12 @@ class ExpensesFragment : Fragment() {
         dialog.show()
     }
 
-    override fun onResume() {
-        super.onResume()
-        expensesViewModel.fetchExpenseListFromDatabase()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onRecyclerViewItemClick(model: ExpenseModel, position: Int) {
+
     }
 }

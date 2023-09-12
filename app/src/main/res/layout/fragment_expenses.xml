@@ -8,7 +8,7 @@
 
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbar_expenses"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/toolbar_title"
+            android:id="@+id/toolbar_expenses_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
@@ -26,7 +26,7 @@
             android:textSize="18sp" />
 
         <ImageView
-            android:id="@+id/filter_icon"
+            android:id="@+id/expenses_filter_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -35,17 +35,13 @@
             android:src="@drawable/baseline_filter_alt_24" />
     </androidx.appcompat.widget.Toolbar>
 
-    <TextView
-        android:id="@+id/text_dashboard"
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_expense_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="68dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,7 +7,7 @@
     tools:context=".ui.employee.expenses.ExpenseListFragment">
 
     <include
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbar_history"
         layout="@layout/filter_toolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -18,6 +18,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_history" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

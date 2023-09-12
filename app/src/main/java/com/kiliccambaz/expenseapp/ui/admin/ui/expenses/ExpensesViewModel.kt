@@ -12,11 +12,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.kiliccambaz.expenseapp.data.ExpenseHistory
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
-import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -24,6 +21,10 @@ class ExpensesViewModel : ViewModel() {
 
     private val _expenseList = MutableLiveData<List<ExpenseModel>>()
     val expenseList : LiveData<List<ExpenseModel>> = _expenseList
+
+    init {
+        fetchExpenseListFromDatabase()
+    }
 
     fun fetchExpenseListFromDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -65,10 +66,8 @@ class ExpensesViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
-                val query = databaseReference .orderByChild("userId")
-                    .equalTo("${UserManager.getUserId()}")
 
-                query.addListenerForSingleValueEvent(object : ValueEventListener {
+                databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         val expenses = mutableListOf<ExpenseModel>()
 

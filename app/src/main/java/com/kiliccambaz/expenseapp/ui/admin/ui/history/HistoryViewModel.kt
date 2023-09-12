@@ -29,6 +29,10 @@ class HistoryViewModel : ViewModel() {
         private val _historyList = MutableLiveData<List<ExpenseHistoryUIModel>>()
     val historyList : LiveData<List<ExpenseHistoryUIModel>> = _historyList
 
+    init {
+        getExpenseHistoryList()
+    }
+
     fun getExpenseHistoryList() {
         viewModelScope.launch(Dispatchers.IO) {
             try {

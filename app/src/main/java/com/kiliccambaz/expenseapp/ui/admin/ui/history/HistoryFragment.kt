@@ -31,7 +31,7 @@ class HistoryFragment : Fragment() {
             ViewModelProvider(this)[HistoryViewModel::class.java]
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        binding.toolbar.toolbarTitle.text = "Expense History List"
+        binding.toolbarHistory.toolbarTitle.text = "Expense History List"
         historyAdapter = HistoryAdapter()
         binding.rvHistoryList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvHistoryList.adapter = historyAdapter
@@ -43,7 +43,7 @@ class HistoryFragment : Fragment() {
             }
         }
 
-        binding.toolbar.filterIcon.setOnClickListener {
+        binding.toolbarHistory.filterIcon.setOnClickListener {
             showFilterPopup()
         }
 
@@ -86,11 +86,6 @@ class HistoryFragment : Fragment() {
 
         val dialog = builder.create()
         dialog.show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        historyViewModel.getExpenseHistoryList()
     }
 
     override fun onDestroyView() {
