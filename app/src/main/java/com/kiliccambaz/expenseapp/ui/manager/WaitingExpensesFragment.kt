@@ -78,35 +78,35 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
 
     private fun showFilterPopup() {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Filtreleme")
+        builder.setTitle(R.string.filtering_options)
 
-        // Filtre seçeneklerini içeren bir görünümü yükleyin
-        val view = layoutInflater.inflate(R.layout.filter_status_options, null)
+        val view = layoutInflater.inflate(R.layout.filter_type_options, null)
         builder.setView(view)
 
-        val checkBoxPending = view.findViewById<CheckBox>(R.id.checkBoxPending)
-        val checkBoxApproved = view.findViewById<CheckBox>(R.id.checkBoxApproved)
-        val checkBoxPaid = view.findViewById<CheckBox>(R.id.checkBoxPaid)
+        val checkBoxes = listOf(
+            Pair(view.findViewById(R.id.checkBoxTaxi), "Taxi"),
+            Pair(view.findViewById(R.id.checkBoxFood), "Food"),
+            Pair(view.findViewById(R.id.checkBoxGas), "Gas"),
+            Pair(view.findViewById(R.id.checkBoxAccommodation), "Accommodation"),
+            Pair(view.findViewById<CheckBox>(R.id.checkBoxOther), "Other")
+        )
 
-        checkBoxPending.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
+        val selectedExpenseTypes = mutableListOf<String>()
 
-            }
-        }
-
-        checkBoxApproved.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-
-            }
-        }
-
-        checkBoxPaid.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-
+        checkBoxes.forEach { (checkBox, expenseType) ->
+            checkBox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedExpenseTypes.add(expenseType)
+                } else {
+                    selectedExpenseTypes.remove(expenseType)
+                }
             }
         }
 
         builder.setPositiveButton("Tamam") { dialog, _ ->
+            waitingViewModel.getExpensesByTypes(selectedExpenseTypes) { expenseList ->
+                waitingExpensesAdapter.updateList(expenseList)
+            }
             dialog.dismiss()
         }
         builder.setNegativeButton("İptal") { dialog, _ ->
@@ -116,7 +116,6 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         val dialog = builder.create()
         dialog.show()
     }
-
 
 
 }

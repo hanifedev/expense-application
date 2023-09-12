@@ -6,33 +6,32 @@
     android:orientation="vertical">
 
     <CheckBox
-        android:id="@+id/checkBoxWaiting"
+        android:id="@+id/checkBoxTaxi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/waiting" />
+        android:text="@string/expense_type_taxi" />
 
     <CheckBox
-        android:id="@+id/checkBoxApproved"
+        android:id="@+id/checkBoxFood"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/approved" />
+        android:text="@string/expense_type_food" />
 
     <CheckBox
-        android:id="@+id/checkBoxChangeStatus"
+        android:id="@+id/checkBoxAccommodation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/change_status" />
+        android:text="@string/expense_type_accommodation" />
 
     <CheckBox
-        android:id="@+id/checkBoxRejected"
+        android:id="@+id/checkBoxGas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/rejected" />
+        android:text="@string/expense_type_gas" />
 
     <CheckBox
-        android:id="@+id/checkBoxPaid"
+        android:id="@+id/checkBoxOther"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/paid" />
-
+        android:text="@string/expense_type_other" />
 </LinearLayout>

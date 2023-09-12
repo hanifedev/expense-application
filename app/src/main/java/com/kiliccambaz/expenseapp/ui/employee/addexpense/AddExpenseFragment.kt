@@ -18,6 +18,7 @@ import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.databinding.FragmentAddExpenseBinding
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
+import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -66,7 +67,7 @@ class AddExpenseFragment : Fragment() {
                             binding!!.txtDescriptionInputLayout.error = "Açıklama alanı boş bırakılamaz"
                         } else {
                             binding!!.txtDescriptionInputLayout.error = null
-                            expenseList.add(ExpenseModel(amount = amount.toDouble(), date  = DateTimeUtils.getCurrentDateTimeAsString(), description = description, expenseType = expenseType.toString(), userId = "-Ndj8cP7h0zzHXNRT1g2", currencyType =  currencyType.toString()))
+                            expenseList.add(ExpenseModel(amount = amount.toDouble(), date  = DateTimeUtils.getCurrentDateTimeAsString(), description = description, expenseType = expenseType.toString(), userId = UserManager.getUserId() ?: "", currencyType =  currencyType.toString()))
                             addExpenseViewModel.saveExpenses(expenseList)
                         }
                     }

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.kiliccambaz.expenseapp.data.ExpenseHistory
@@ -14,6 +15,7 @@ import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.data.UserModel
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
+import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
@@ -124,4 +126,44 @@ class HistoryViewModel : ViewModel() {
         }
         return userEmail
     }
+
+    fun getExpensesByStatus(statusTypes: List<Int>) {
+        histories.clear()
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val expensesRef = database.getReference("expenseHistory")
+
+                expensesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                        for (childSnapshot in dataSnapshot.children) {
+                            val expense = childSnapshot.getValue(ExpenseHistory::class.java)
+                            if (expense != null && expense.status in statusTypes) {
+                                val expenseHistoryModel = ExpenseHistoryUIModel()
+                                expenseHistoryModel.date = expense.date
+                                expenseHistoryModel.statusId = expense.status
+                                getExpenseDetail(expense.expenseId, expenseHistoryModel)
+                            }
+                        }
+
+                        if(histories.isEmpty()) {
+                            _historyList.postValue(emptyList())
+                        }
+
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        databaseError.toException().printStackTrace()
+                        ErrorUtils.addErrorToDatabase(databaseError.toException(), "")
+                        FirebaseCrashlytics.getInstance().recordException(databaseError.toException())
+                    }
+                })
+
+            }catch (ex: Exception) {
+                ErrorUtils.addErrorToDatabase(ex, "")
+                FirebaseCrashlytics.getInstance().recordException(ex)
+            }
+        }
+    }
+
 }

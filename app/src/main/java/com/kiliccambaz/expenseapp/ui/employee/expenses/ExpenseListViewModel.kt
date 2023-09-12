@@ -7,11 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
+import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -23,7 +26,7 @@ class ExpenseListViewModel : ViewModel() {
     fun fetchExpenseListFromDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
         val databaseReference = Firebase.database.reference.child("expenses")
-            val query = databaseReference.orderByChild("userId").equalTo("-Ndj8cP7h0zzHXNRT1g2")
+            val query = databaseReference.orderByChild("userId").equalTo(UserManager.getUserId())
 
             query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -54,6 +57,43 @@ class ExpenseListViewModel : ViewModel() {
                 _expenseList.value = emptyList()
             }
         })
+        }
+    }
+
+    fun getExpensesByTypes(expenseTypes: List<String>, onExpensesFetched: (List<ExpenseModel>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
+                val query = databaseReference .orderByChild("userId")
+                    .equalTo("${UserManager.getUserId()}")
+
+                query.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val expenses = mutableListOf<ExpenseModel>()
+
+                        for (expenseSnapshot in dataSnapshot.children) {
+                            val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
+                            expense?.let {
+                                if (it.expenseType in expenseTypes) {
+                                    expenses.add(it)
+                                }
+                            }
+                        }
+
+                        onExpensesFetched(expenses)
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        databaseError.toException().printStackTrace()
+                        ErrorUtils.addErrorToDatabase(databaseError.toException(), databaseError.toException().message.toString())
+                        FirebaseCrashlytics.getInstance().recordException(databaseError.toException())
+                        onExpensesFetched(emptyList())
+                    }
+                })
+            } catch (ex: java.lang.Exception) {
+                ErrorUtils.addErrorToDatabase(ex, ex.message.toString())
+                FirebaseCrashlytics.getInstance().recordException(ex)
+            }
         }
     }
 

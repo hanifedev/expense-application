@@ -18,6 +18,7 @@ import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.data.UserModel
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import com.kiliccambaz.expenseapp.utils.HashUtils
+import com.kiliccambaz.expenseapp.utils.UserManager
 import java.security.MessageDigest
 import java.security.SecureRandom
 
@@ -39,7 +40,9 @@ class LoginViewModel : ViewModel() {
                                     val userRole = user.role
                                     if (userRole != null) {
                                         val userId = userSnapshot.key
-
+                                        if (userId != null) {
+                                            UserManager.setUserId(userId)
+                                        }
                                         onLoginComplete(Result.Success(userRole))
                                         return
                                     } else {

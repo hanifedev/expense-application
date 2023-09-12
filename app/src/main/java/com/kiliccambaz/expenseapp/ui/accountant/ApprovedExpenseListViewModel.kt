@@ -8,12 +8,14 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
+import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -101,6 +103,43 @@ class ApprovedExpenseListViewModel: ViewModel() {
                     ErrorUtils.addErrorToDatabase(e, e.message.toString())
                     FirebaseCrashlytics.getInstance().recordException(e)
                 }
+        }
+    }
+
+    fun getExpensesByTypes(expenseTypes: List<String>, onExpensesFetched: (List<ExpenseModel>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+
+                            val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
+                            val query = databaseReference.orderByChild("expenseType")
+
+                            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                    val expenses = mutableListOf<ExpenseModel>()
+
+                                    for (expenseSnapshot in dataSnapshot.children) {
+                                        val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
+                                        expense?.let {
+                                            if (it.expenseType in expenseTypes && expense.statusId == 2) {
+                                                expenses.add(it)
+                                            }
+                                        }
+                                    }
+
+                                    onExpensesFetched(expenses)
+                                }
+
+                                override fun onCancelled(databaseError: DatabaseError) {
+                                    databaseError.toException().printStackTrace()
+                                    ErrorUtils.addErrorToDatabase(databaseError.toException(), databaseError.toException().message.toString())
+                                    FirebaseCrashlytics.getInstance().recordException(databaseError.toException())
+                                    onExpensesFetched(emptyList())
+                                }
+                            })
+            } catch (ex: java.lang.Exception) {
+                ErrorUtils.addErrorToDatabase(ex, ex.message.toString())
+                FirebaseCrashlytics.getInstance().recordException(ex)
+            }
         }
     }
 

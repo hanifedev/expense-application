@@ -29,10 +29,8 @@ class HistoryFragment : Fragment() {
     ): View {
         historyViewModel =
             ViewModelProvider(this)[HistoryViewModel::class.java]
-
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
         binding.toolbar.toolbarTitle.text = "Expense History List"
         historyAdapter = HistoryAdapter()
         binding.rvHistoryList.layoutManager = LinearLayoutManager(requireContext())
@@ -54,35 +52,32 @@ class HistoryFragment : Fragment() {
 
     private fun showFilterPopup() {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Filtreleme")
+        builder.setTitle(R.string.filtering_options)
 
-        // Filtre seçeneklerini içeren bir görünümü yükleyin
         val view = layoutInflater.inflate(R.layout.filter_status_options, null)
         builder.setView(view)
 
-        val checkBoxPending = view.findViewById<CheckBox>(R.id.checkBoxPending)
-        val checkBoxApproved = view.findViewById<CheckBox>(R.id.checkBoxApproved)
-        val checkBoxPaid = view.findViewById<CheckBox>(R.id.checkBoxPaid)
+        val checkBoxes = listOf(
+            Pair(view.findViewById<CheckBox>(R.id.checkBoxWaiting), 1),
+            Pair(view.findViewById(R.id.checkBoxApproved), 2),
+            Pair(view.findViewById(R.id.checkBoxChangeStatus), 3),
+            Pair(view.findViewById(R.id.checkBoxRejected), 4),
+            Pair(view.findViewById(R.id.checkBoxPaid), 5)
+        )
 
-        checkBoxPending.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-
-            }
-        }
-
-        checkBoxApproved.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-
-            }
-        }
-
-        checkBoxPaid.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-
+        val selectedStatusTypes = mutableListOf<Int>()
+        checkBoxes.forEach { (checkBox, statusType) ->
+            checkBox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedStatusTypes.add(statusType)
+                } else {
+                    selectedStatusTypes.remove(statusType)
+                }
             }
         }
 
         builder.setPositiveButton("Tamam") { dialog, _ ->
+            historyViewModel.getExpensesByStatus(selectedStatusTypes)
             dialog.dismiss()
         }
         builder.setNegativeButton("İptal") { dialog, _ ->

@@ -15,6 +15,7 @@ import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
+import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -38,7 +39,7 @@ class WaitingExpensesViewModel : ViewModel() {
 
                 val usersQuery = databaseReference.child("users")
                     .orderByChild("managerId")
-                    .equalTo("-Ndj8KEUEI5KmBhOqnJr")
+                    .equalTo(UserManager.getUserId())
 
                 usersQuery.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(usersDataSnapshot: DataSnapshot) {
@@ -135,4 +136,66 @@ class WaitingExpensesViewModel : ViewModel() {
         }
     }
 
+    fun getExpensesByTypes(expenseTypes: List<String>, onExpensesFetched: (List<ExpenseModel>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val databaseReference = Firebase.database.reference
+
+                val usersQuery = databaseReference.child("users")
+                    .orderByChild("managerId")
+                    .equalTo(UserManager.getUserId())
+
+                usersQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(usersDataSnapshot: DataSnapshot) {
+                        if (usersDataSnapshot.exists()) {
+                            val managerUserIds = mutableListOf<String>()
+
+                            for (userSnapshot in usersDataSnapshot.children) {
+                                managerUserIds.add(userSnapshot.key!!)
+                            }
+
+                            val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
+                            val query = databaseReference.orderByChild("expenseType")
+
+                            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                    val expenses = mutableListOf<ExpenseModel>()
+
+                                    for (expenseSnapshot in dataSnapshot.children) {
+                                        val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
+                                        expense?.let {
+                                            if (it.expenseType in expenseTypes && managerUserIds.contains(expense?.userId)) {
+                                                expenses.add(it)
+                                            }
+                                        }
+                                    }
+
+                                    onExpensesFetched(expenses)
+                                }
+
+                            override fun onCancelled(databaseError: DatabaseError) {
+                                databaseError.toException().printStackTrace()
+                                ErrorUtils.addErrorToDatabase(databaseError.toException(), databaseError.toException().message.toString())
+                                FirebaseCrashlytics.getInstance().recordException(databaseError.toException())
+                                onExpensesFetched(emptyList())
+                            }
+                            })
+                        } else {
+                            onExpensesFetched(emptyList())
+                        }
+                    }
+
+                    override fun onCancelled(usersDatabaseError: DatabaseError) {
+                        val errorMessage = "Firebase Realtime Database error: ${usersDatabaseError.message}"
+                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
+                        FirebaseCrashlytics.getInstance().recordException(java.lang.Exception(errorMessage))
+                        onExpensesFetched(emptyList())
+                    }
+                })
+    } catch (ex: java.lang.Exception) {
+                ErrorUtils.addErrorToDatabase(ex, ex.message.toString())
+                FirebaseCrashlytics.getInstance().recordException(ex)
+    }
+        }
+    }
 }

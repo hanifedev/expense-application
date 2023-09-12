@@ -19,6 +19,17 @@
     <string name="reject_reason_text">Değişiklik nedeni</string>
     <string name="title_reports">Reports</string>
     <string name="pay_text">Pay</string>
+    <string name="expense_type_taxi">Taxi</string>
+    <string name="expense_type_food">Food</string>
+    <string name="expense_type_accommodation">Accommodation</string>
+    <string name="expense_type_gas">Gas</string>
+    <string name="expense_type_other">Other</string>
+    <string name="filtering_options">Filtering Options</string>
+    <string name="paid">Paid</string>
+    <string name="approved">Approved</string>
+    <string name="waiting">Waiting</string>
+    <string name="rejected">Rejected</string>
+    <string name="change_status">Change Status</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>
