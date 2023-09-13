@@ -59,4 +59,5 @@
     <string name="currency_type_validation">Currency type cannot be empty</string>
     <string name="expense_type_validation">Expense type cannot be empty</string>
     <string name="expense_type_added_successfully">Expense type added successfully</string>
+    <string name="userExpenses">User Expenses</string>
 </resources>

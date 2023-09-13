@@ -51,7 +51,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/baseline_add_24"
-        app:backgroundTint="@color/material_dynamic_tertiary60"
+        android:tint="@color/white"
+        app:backgroundTint="#AD88EF"
         app:layout_anchor="@id/rv_expense_list"
         app:layout_anchorGravity="bottom|right|end" />
 

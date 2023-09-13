@@ -65,6 +65,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
     implementation("com.google.firebase:firebase-database-ktx:20.2.2")
     implementation("androidx.recyclerview:recyclerview:1.3.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     kapt("com.google.dagger:hilt-compiler:2.44")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
