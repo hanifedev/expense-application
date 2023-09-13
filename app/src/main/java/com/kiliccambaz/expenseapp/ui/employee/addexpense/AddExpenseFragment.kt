@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.AttributeSet
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.databinding.FragmentAddExpenseBinding
+import com.kiliccambaz.expenseapp.utils.CustomExpenseView
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
@@ -29,12 +31,14 @@ import kotlinx.coroutines.launch
 import org.w3c.dom.Text
 import java.text.DecimalFormat
 
-class AddExpenseFragment : Fragment() {
+class AddExpenseFragment : Fragment(), CustomExpenseView.AmountChangeListener {
 
     private lateinit var addExpenseViewModel: AddExpenseViewModel
     private var binding: FragmentAddExpenseBinding? = null
     private val expenseList = arrayListOf<ExpenseModel>()
     private var currencySymbol = ""
+    private val customExpenseViews = mutableListOf<CustomExpenseView>()
+    private var firstAmount = 0.0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,7 +78,6 @@ class AddExpenseFragment : Fragment() {
                 if (totalAmount != null) {
                     if(totalAmount.isNotEmpty())  {
                         convertDecimalFormat(totalAmount.toString().toDouble())
-
                     }
                 }
             }
@@ -87,6 +90,7 @@ class AddExpenseFragment : Fragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val hasText = s?.isNotEmpty() == true
+                firstAmount = s.toString().toDouble()
 
                 if (hasText) {
                     if(s.toString().toDouble() < 5000) {
@@ -107,7 +111,7 @@ class AddExpenseFragment : Fragment() {
 
                     convertDecimalFormat(totalAmount.toDouble())
                     } else {
-                        binding!!.txtAmountInputLayout.error = "Amount must be greater than 5000"
+                        binding!!.txtAmountInputLayout.error = getString(R.string.amount_price_validation)
                     }
                 } else {
                     binding!!.cardTotal.visibility = View.INVISIBLE
@@ -123,30 +127,49 @@ class AddExpenseFragment : Fragment() {
         binding!!.btnSaveExpense.setOnClickListener {
             val expenseType = binding!!.autoCompleteExpenseType.text
             if(expenseType.isEmpty()) {
-                binding!!.txtInputLayoutExpenseType.error = "Masraf tipi boş bırakılamaz"
+                binding!!.txtInputLayoutExpenseType.error = getString(R.string.expense_type_validation)
             } else {
                 binding!!.txtInputLayoutExpenseType.error = null
                 val currencyType = binding!!.autoCompleteCurrencyType.text
                 if(currencyType.isEmpty()) {
-                    binding!!.txtInputLayoutCurrency.error = "Para birimi boş bırakılamaz"
+                    binding!!.txtInputLayoutCurrency.error = getString(R.string.currency_type_validation)
                 } else {
                     binding!!.txtInputLayoutCurrency.error = null
                     val amount = binding!!.txtAmount.text.toString()
                     if (amount.isEmpty()) {
-                        binding!!.txtAmountInputLayout.error = "Tutar alanı boş bırakılamaz"
+                        binding!!.txtAmountInputLayout.error = getString(R.string.amount_validation)
                     } else if(amount.toDouble() > 5000) {
-                        binding!!.txtAmountInputLayout.error = "Amount must be greater than 5000"
+                        binding!!.txtAmountInputLayout.error = getString(R.string.amount_price_validation)
                     }
                     else {
                         binding!!.txtAmountInputLayout.error = null
                         val description = binding!!.txtDescription.text.toString()
                         if(description.isEmpty()) {
-                            binding!!.txtDescriptionInputLayout.error = "Açıklama alanı boş bırakılamaz"
+                            binding!!.txtDescriptionInputLayout.error = getString(R.string.description_validation)
                         } else {
                             binding!!.txtDescriptionInputLayout.error = null
                             expenseList.add(ExpenseModel(amount = amount.toDouble(), date  = DateTimeUtils.getCurrentDateTimeAsString(), description = description, expenseType = expenseType.toString(), userId = UserManager.getUserId() ?: "", currencyType =  currencyType.toString()))
-                            binding!!.totalAmountTextview.text = expenseList.sumOf { it.amount }.toString()
-                            addExpenseViewModel.saveExpenses(expenseList)
+                            if(customExpenseViews.isEmpty()) {
+                                addExpenseViewModel.saveExpenses(expenseList)
+                            } else {
+                                var allInputsValid = true
+
+                                for (customExpenseView in customExpenseViews) {
+                                    if (!customExpenseView.isValid()) {
+                                        allInputsValid = false
+                                    }
+                                }
+
+                                if (allInputsValid) {
+                                    for (customExpenseView in customExpenseViews) {
+                                        val amount = customExpenseView.getAmount()
+                                        val description = customExpenseView.getDescription()
+                                        val expenseType = customExpenseView.getExpenseType()
+                                        expenseList.add(ExpenseModel(amount = amount.toDouble(), date  = DateTimeUtils.getCurrentDateTimeAsString(), description = description, expenseType = expenseType, userId = UserManager.getUserId() ?: "", currencyType =  currencyType.toString()))
+                                    }
+                                    addExpenseViewModel.saveExpenses(expenseList)
+                                }
+                            }
                         }
                     }
                 }
@@ -162,7 +185,7 @@ class AddExpenseFragment : Fragment() {
                 when(result) {
                     is Result.Success -> {
                         GlobalScope.launch(Dispatchers.Main) {
-                            Toast.makeText(context, "Masraf başarıyla eklendi", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, getString(R.string.expense_type_added_successfully), Toast.LENGTH_LONG).show()
                             findNavController().popBackStack()
                         }
                     }
@@ -172,6 +195,7 @@ class AddExpenseFragment : Fragment() {
                             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                         }
                     }
+
                 }
             }
         }
@@ -180,28 +204,29 @@ class AddExpenseFragment : Fragment() {
     }
 
     private fun convertDecimalFormat(amount: Double) {
+        val totalAmount = customExpenseViews.sumOf { it.getAmount().toDouble() } + firstAmount
         val decimalFormat = DecimalFormat("#,###.###")
-        val formattedTotalAmount = decimalFormat.format(amount)
-
+        val formattedTotalAmount = decimalFormat.format(totalAmount)
         val totalAmountWithCurrency = "$currencySymbol $formattedTotalAmount"
         binding!!.totalAmountTextview.text = totalAmountWithCurrency
 
     }
 
     private fun addExpenseInput() {
-        val layoutResId = R.layout.layout_expense_entry
+        val customExpenseView = CustomExpenseView(requireContext(), this)
+        binding!!.linearLayout.addView(customExpenseView)
+        customExpenseView.setAmountTextWatcher()
+        customExpenseView.setDescriptionTextWatcher()
+        customExpenseView.setExpenseTypeTextWatcher()
+        customExpenseViews.add(customExpenseView)
+    }
 
-        val inflater = LayoutInflater.from(context)
-        val inflatedLayout = inflater.inflate(layoutResId, null)
+    override fun onAmountChanged(newAmount: Double) {
+        updateTotalAmount(newAmount)
+    }
 
-        val layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-
-        
-
-        binding!!.linearLayout.addView(inflatedLayout, layoutParams)
+    private fun updateTotalAmount(newAmount: Double) {
+        convertDecimalFormat(newAmount)
     }
 
 }

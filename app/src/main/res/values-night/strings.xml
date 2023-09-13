@@ -33,6 +33,12 @@
     <string name="filter">Filter</string>
     <string name="cancel">Cancel</string>
     <string name="total">Total</string>
+    <string name="description_validation">Description cannot be empty</string>
+    <string name="amount_price_validation">Amount must be greater than 5000</string>
+    <string name="amount_validation">Amount cannot be empty</string>
+    <string name="currency_type_validation">Currency type cannot be empty</string>
+    <string name="expense_type_validation">Expense type cannot be empty</string>
+    <string name="expense_type_added_successfully">Expense type added successfully</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>
