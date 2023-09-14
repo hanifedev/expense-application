@@ -1,5 +1,7 @@
 package com.kiliccambaz.expenseapp.ui.login
 
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -45,7 +47,9 @@ class LoginFragment : Fragment() {
                     binding.etPasswordInputLayout.error = getString(R.string.password_validation)
                 } else {
                     binding.etPasswordInputLayout.error = null
+                    val loadingDialog = showLoadingDialog(requireContext())
                     loginViewModel.signInWithEmailAndPassword(email, password) { result ->
+                        loadingDialog.dismiss()
                         when (result) {
                             is Result.Success -> {
                                 when (result.data) {
@@ -86,6 +90,19 @@ class LoginFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun showLoadingDialog(context: Context): AlertDialog {
+        val builder = AlertDialog.Builder(context)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_loading, null)
+
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+
+        val alertDialog = builder.create()
+        alertDialog.show()
+
+        return alertDialog
     }
 
     override fun onDestroyView() {
