@@ -38,7 +38,7 @@ class HistoryViewModel : ViewModel() {
             try {
                 val expensesRef = database.getReference("expenseHistory")
 
-                expensesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                expensesRef.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                         for (childSnapshot in dataSnapshot.children) {
@@ -72,7 +72,7 @@ class HistoryViewModel : ViewModel() {
             try {
                 val expensesRef = database.getReference("expenses").child(expenseId)
 
-                expensesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                expensesRef.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                         val expense = dataSnapshot.getValue(ExpenseModel::class.java)
@@ -108,7 +108,7 @@ class HistoryViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val userRef = database.getReference("users").child(userId)
-                userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                userRef.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                         val user = dataSnapshot.getValue(UserModel::class.java)
@@ -137,7 +137,7 @@ class HistoryViewModel : ViewModel() {
             try {
                 val expensesRef = database.getReference("expenseHistory")
 
-                expensesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                expensesRef.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                         for (childSnapshot in dataSnapshot.children) {

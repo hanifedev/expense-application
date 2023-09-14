@@ -28,8 +28,12 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val usersRef = Firebase.database.getReference("users")
-
-                usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object :
+                val emailOrUsername = if(email.contains("@")) {
+                    "email"
+                } else {
+                    "username"
+                }
+                usersRef.orderByChild(emailOrUsername).equalTo(email).addValueEventListener(object :
                     ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         if (dataSnapshot.exists()) {
@@ -46,24 +50,24 @@ class LoginViewModel : ViewModel() {
                                         onLoginComplete(Result.Success(userRole))
                                         return
                                     } else {
-                                        onLoginComplete(Result.Error("Kullanıcı rolü belirlenemedi."))
+                                        onLoginComplete(Result.Error("User role could not be determined"))
                                     }
                                 }
                             }
                         }
-                        onLoginComplete(Result.Error("Kullanıcı bulunamadı."))
+                        onLoginComplete(Result.Error("Email/username or password is incorrect"))
                     }
 
                     override fun onCancelled(databaseError: DatabaseError) {
                         ErrorUtils.addErrorToDatabase(databaseError.toException(), "")
                         FirebaseCrashlytics.getInstance().recordException(databaseError.toException())
-                        onLoginComplete(Result.Error("Giriş işlemi başarısız oldu"))
+                        onLoginComplete(Result.Error("Login failed"))
                     }
                 })
             } catch (e: Exception) {
                 ErrorUtils.addErrorToDatabase(e, "")
                 FirebaseCrashlytics.getInstance().recordException(e)
-                onLoginComplete(Result.Error("Giriş işlemi başarısız oldu"))
+                onLoginComplete(Result.Error("Login failed"))
             }
         }
     }

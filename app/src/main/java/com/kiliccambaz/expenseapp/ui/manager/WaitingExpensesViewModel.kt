@@ -13,6 +13,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import com.kiliccambaz.expenseapp.utils.UserManager
@@ -25,6 +26,9 @@ class WaitingExpensesViewModel : ViewModel() {
 
     private val _expenseList = MutableLiveData<List<ExpenseModel>>()
     val expenseList : LiveData<List<ExpenseModel>> = _expenseList
+
+    private val _updateResponse = MutableLiveData<Result<Boolean>>()
+    val updateResponse : LiveData<Result<Boolean>> = _updateResponse
 
     init {
         fetchWaitingExpenseList { list ->
@@ -41,7 +45,7 @@ class WaitingExpensesViewModel : ViewModel() {
                     .orderByChild("managerId")
                     .equalTo(UserManager.getUserId())
 
-                usersQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+                usersQuery.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(usersDataSnapshot: DataSnapshot) {
                         if (usersDataSnapshot.exists()) {
                             val managerUserIds = mutableListOf<String>()
@@ -54,7 +58,7 @@ class WaitingExpensesViewModel : ViewModel() {
                                 .orderByChild("statusId")
                                 .equalTo(1.0)
 
-                            expensesQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+                            expensesQuery.addValueEventListener(object : ValueEventListener {
                                 override fun onDataChange(expensesDataSnapshot: DataSnapshot) {
                                     val expenseList = mutableListOf<ExpenseModel>()
 
@@ -97,13 +101,15 @@ class WaitingExpensesViewModel : ViewModel() {
     }
 
     fun updateExpense(expenseModel: ExpenseModel) {
+        viewModelScope.launch(Dispatchers.IO) {
         val expensesRef: DatabaseReference = database.getReference("expenses")
 
         try {
-            val updateData = hashMapOf<String, Any>("statusId" to expenseModel.statusId, "rejectedReason" to expenseModel.rejectedReason, "amount" to expenseModel.amount, "currencyType" to expenseModel.currencyType, "date" to expenseModel.date, "description" to expenseModel.description, "expenseType" to expenseModel.expenseType, "userId" to expenseModel.userId)
+            val updateData = expenseModel.toMap()
 
             expensesRef.child(expenseModel.expenseId).updateChildren(updateData)
                 .addOnSuccessListener {
+                    _updateResponse.postValue(Result.Success(true))
                     fetchWaitingExpenseList { list ->
                         _expenseList.value = list
                     }
@@ -116,6 +122,7 @@ class WaitingExpensesViewModel : ViewModel() {
         } catch (e: Exception) {
             ErrorUtils.addErrorToDatabase(e, e.message.toString())
             FirebaseCrashlytics.getInstance().recordException(e)
+        }
         }
     }
 
@@ -145,7 +152,7 @@ class WaitingExpensesViewModel : ViewModel() {
                     .orderByChild("managerId")
                     .equalTo(UserManager.getUserId())
 
-                usersQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+                usersQuery.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(usersDataSnapshot: DataSnapshot) {
                         if (usersDataSnapshot.exists()) {
                             val managerUserIds = mutableListOf<String>()
@@ -157,7 +164,7 @@ class WaitingExpensesViewModel : ViewModel() {
                             val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
                             val query = databaseReference.orderByChild("expenseType")
 
-                            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                            query.addValueEventListener(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                                     val expenses = mutableListOf<ExpenseModel>()
 
@@ -187,7 +194,7 @@ class WaitingExpensesViewModel : ViewModel() {
 
                     override fun onCancelled(usersDatabaseError: DatabaseError) {
                         val errorMessage = "Firebase Realtime Database error: ${usersDatabaseError.message}"
-                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
+                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), UserManager.getUserId())
                         FirebaseCrashlytics.getInstance().recordException(java.lang.Exception(errorMessage))
                         onExpensesFetched(emptyList())
                     }

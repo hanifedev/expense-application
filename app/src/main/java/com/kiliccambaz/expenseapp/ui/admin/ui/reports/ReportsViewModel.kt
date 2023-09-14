@@ -19,9 +19,14 @@ import kotlinx.coroutines.launch
 
 class ReportsViewModel : ViewModel() {
 
-    private val _expenseData = MutableLiveData<Map<String, Float>>()
-    val expenseData: LiveData<Map<String, Float>> = _expenseData
+    private val _userExpenseData = MutableLiveData<Map<String, Float>>()
+    val userExpenseData: LiveData<Map<String, Float>> = _userExpenseData
 
+    private val _expenseTypeData = MutableLiveData<Map<String, Float>>()
+    val expenseTypeData: LiveData<Map<String, Float>> = _expenseTypeData
+
+    private val _dailyExpense = MutableLiveData<Map<String, Float>>()
+    val dailyExpense: LiveData<Map<String, Float>> = _dailyExpense
 
     init {
         fetchExpenseListFromDatabase()
@@ -31,10 +36,12 @@ class ReportsViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val databaseReference = Firebase.database.reference.child("expenses")
 
-            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            databaseReference.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     if (dataSnapshot.exists()) {
                         val expenseList = mutableListOf<ExpenseModel>()
+                        val expensesTypeMap = mutableMapOf<String, Float>()
+                        val dailyExpenses = mutableMapOf<String, Float>()
 
                         for (expenseSnapshot in dataSnapshot.children) {
                             val expenseId = expenseSnapshot.key
@@ -44,13 +51,26 @@ class ReportsViewModel : ViewModel() {
                                     expense.expenseId = expenseId
                                 }
                                 expenseList.add(it)
+                                if (expensesTypeMap.containsKey(expense.expenseType)) {
+                                    expensesTypeMap[expense.expenseType] = (expensesTypeMap[expense.expenseType]!! + expense.amount).toFloat()
+                                } else {
+                                    expensesTypeMap[expense.expenseType] = expense.amount.toFloat()
+                                }
+                                val date = expense.date.substring(0,10)
+                                if (dailyExpenses.containsKey(date)) {
+                                    dailyExpenses[date] = (dailyExpenses[date]!! + expense.amount).toFloat()
+                                } else {
+                                    dailyExpenses[date] = expense.amount.toFloat()
+                                }
                             }
                         }
+                        _dailyExpense.postValue(dailyExpenses)
+                        _expenseTypeData.postValue(expensesTypeMap)
 
                         val usersMap = mutableMapOf<String, String>()
 
                         val userRef = Firebase.database.reference.child("users")
-                        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        userRef.addValueEventListener(object : ValueEventListener {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                                 for(userSnapshot in dataSnapshot.children) {
@@ -58,13 +78,13 @@ class ReportsViewModel : ViewModel() {
                                     user?.let { userModel ->
                                         val userId = userSnapshot.key
                                         userId?.let {
-                                            usersMap[userId] = userModel.email
+                                            usersMap[userId] = userModel.username
                                         }
                                     }
                                 }
 
                                 val userExpensesMap = groupExpensesByUser(expenseList, usersMap)
-                                _expenseData.postValue(userExpensesMap)
+                                _userExpenseData.postValue(userExpensesMap)
                             }
 
                             override fun onCancelled(databaseError: DatabaseError) {

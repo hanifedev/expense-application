@@ -45,7 +45,12 @@
         android:id="@+id/addExpenseFragment"
         android:name="com.kiliccambaz.expenseapp.ui.employee.addexpense.AddExpenseFragment"
         android:label="fragment_add_expense"
-        tools:layout="@layout/fragment_add_expense" />
+        tools:layout="@layout/fragment_add_expense">
+        <argument
+            android:name="expenseModel"
+            app:argType="com.kiliccambaz.expenseapp.data.ExpenseModel"
+            app:nullable="true"/>
+    </fragment>
     <fragment
         android:id="@+id/waitingExpensesFragment"
         android:name="com.kiliccambaz.expenseapp.ui.manager.WaitingExpensesFragment"

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
@@ -28,7 +29,7 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
         binding = FragmentExpenseListBinding.inflate(layoutInflater)
         binding!!.toolbarTitle.text = "Expense List"
         expenseListViewModel = ViewModelProvider(this)[ExpenseListViewModel::class.java]
-        expenseListAdapter = ExpenseListAdapter( this)
+        expenseListAdapter = ExpenseListAdapter( requireContext(), this)
         binding!!.rvExpenseList.layoutManager = LinearLayoutManager(requireContext())
         binding!!.rvExpenseList.adapter = expenseListAdapter
 
@@ -39,7 +40,7 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
         }
 
         binding!!.fabAddExpense.setOnClickListener {
-            val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment()
+            val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment(null)
             findNavController().navigate(action)
         }
 
@@ -52,9 +53,28 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
 
     override fun onRecyclerViewItemClick(model: ExpenseModel, position: Int) {
         if(model.statusId == 1) {
-            val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment()
+            val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment(model)
             findNavController().navigate(action)
+        } else if(model.statusId == 3) {
+            showDescriptionDetailDialog(model.rejectedReason)
         }
+    }
+
+    private fun showDescriptionDetailDialog(description: String) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_description_detail, null)
+        val descriptionTextView = dialogView.findViewById<TextView>(R.id.tvDescription)
+
+        descriptionTextView.text = description
+
+        val dialogBuilder = AlertDialog.Builder(context)
+            .setView(dialogView)
+            .setTitle("Description Detail")
+            .setPositiveButton("Close") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
     }
 
 

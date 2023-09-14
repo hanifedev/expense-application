@@ -40,6 +40,18 @@
     <string name="expense_type_validation">Expense type cannot be empty</string>
     <string name="expense_type_added_successfully">Expense type added successfully</string>
     <string name="userExpenses">User Expenses</string>
+    <string name="daily_expenses">Daily Expenses</string>
+    <string name="ok">OK</string>
+    <string name="change_request">Change Request</string>
+    <string name="email_validation">Email cannot be empty</string>
+    <string name="email_validation_error">Please enter a valid email</string>
+    <string name="password_validation">Password cannot be empty</string>
+    <string name="register_successfully">Register operation successfully</string>
+    <string name="password_match_validation">Passwords do not match</string>
+    <string name="username_validation">Username cannot be empty</string>
+    <string name="email_or_username_validation">Email or username cannot be empty</string>
+    <string name="transaction_successfully">Your transaction has been completed successfully</string>
+    <string name="email_or_username">Email or username</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>

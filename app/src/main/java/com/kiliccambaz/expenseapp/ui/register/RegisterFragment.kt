@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.databinding.FragmentRegisterBinding
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.utils.ValidationUtils
@@ -26,38 +27,63 @@ class RegisterFragment : Fragment() {
         _binding = FragmentRegisterBinding.inflate(layoutInflater)
         registerViewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
         binding.btnRegister.setOnClickListener {
-            val email = binding.etEmail.text.toString()
-            if (email.isEmpty()) {
-                binding.etEmailInputLayout.error = "E-posta alanı boş olamaz"
-            } else if (!ValidationUtils.isEmailValid(email)) {
-                binding.etEmailInputLayout.error = "Geçerli bir e-posta giriniz"
+            val username = binding.etUsername.text.toString()
+            if(username.isEmpty()) {
+                binding.etUsernameInputLayout.error = getString(R.string.username_validation)
             } else {
-                binding.etEmailInputLayout.error = null
-                val password = binding.etPassword.text.toString()
-                if (password.isEmpty()) {
-                    binding.etPasswordInputLayout.error = "Parola alanı boş olamaz"
+                binding.etUsernameInputLayout.error = null
+
+                val email = binding.etEmail.text.toString()
+                if (email.isEmpty()) {
+                    binding.etEmailInputLayout.error = getString(R.string.email_validation)
+                } else if (!ValidationUtils.isEmailValid(email)) {
+                    binding.etEmailInputLayout.error = getString(R.string.email_validation_error)
                 } else {
-                    binding.etPasswordInputLayout.error = null
-                    val confirmPassword = binding!!.etConfirmPassword.text.toString()
-                    if (confirmPassword.isEmpty()) {
-                        binding.etConfirmPassword.error = "Parola alanı boş olamaz"
+                    binding.etEmailInputLayout.error = null
+                    val password = binding.etPassword.text.toString()
+                    if (password.isEmpty()) {
+                        binding.etPasswordInputLayout.error =
+                            getString(R.string.password_validation)
                     } else {
                         binding.etPasswordInputLayout.error = null
-                        if(password == confirmPassword) {
-                            registerViewModel.registerWithEmailAndPassword(email, password) { result ->
-                                when (result) {
-                                    is Result.Success -> {
-                                        Toast.makeText(context, "Başarıyla kayıt olundu", Toast.LENGTH_LONG).show()
-                                        requireActivity().supportFragmentManager.popBackStack()
-                                    }
-                                    is Result.Error -> {
-                                        val errorMessage = result.message
-                                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        val confirmPassword = binding.etConfirmPassword.text.toString()
+                        if (confirmPassword.isEmpty()) {
+                            binding.etConfirmPassword.error =
+                                getString(R.string.password_validation)
+                        } else {
+                            binding.etPasswordInputLayout.error = null
+                            if (password == confirmPassword) {
+                                registerViewModel.registerWithEmailAndPassword(
+                                    email,
+                                    password
+                                ) { result ->
+                                    when (result) {
+                                        is Result.Success -> {
+                                            Toast.makeText(
+                                                context,
+                                                getString(R.string.register_successfully),
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            requireActivity().supportFragmentManager.popBackStack()
+                                        }
+
+                                        is Result.Error -> {
+                                            val errorMessage = result.message
+                                            Toast.makeText(
+                                                context,
+                                                errorMessage,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                     }
                                 }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    getString(R.string.password_match_validation),
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
-                        } else {
-                            Toast.makeText(context, "Parolalar eşleşmiyor", Toast.LENGTH_LONG).show()
                         }
                     }
                 }

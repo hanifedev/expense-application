@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.databinding.FragmentLoginBinding
 import com.kiliccambaz.expenseapp.ui.admin.AdminActivity
@@ -34,14 +35,14 @@ class LoginFragment : Fragment() {
         binding.btnSignIn.setOnClickListener {
             val email = binding.etEmail.text.toString()
             if (email.isEmpty()) {
-                binding.etEmailInputLayout.error = "E-posta alanı boş olamaz"
-            } else if (!ValidationUtils.isEmailValid(email)) {
-                binding.etEmailInputLayout.error = "Geçerli bir e-posta giriniz"
+                binding.etEmailInputLayout.error = getString(R.string.email_or_username_validation)
+            } else if (email.contains("@") && !ValidationUtils.isEmailValid(email)) {
+                binding.etEmailInputLayout.error = getString(R.string.email_validation_error)
             } else {
                 binding.etEmailInputLayout.error = null
                 val password = binding.etPassword.text.toString()
                 if (password.isEmpty()) {
-                    binding.etPasswordInputLayout.error = "Parola alanı boş olamaz"
+                    binding.etPasswordInputLayout.error = getString(R.string.password_validation)
                 } else {
                     binding.etPasswordInputLayout.error = null
                     loginViewModel.signInWithEmailAndPassword(email, password) { result ->

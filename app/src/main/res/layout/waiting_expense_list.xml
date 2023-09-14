@@ -40,54 +40,90 @@
                 android:layout_height="match_parent"
                 android:padding="5dp">
 
+                <ImageView
+                    android:id="@+id/iv_expense_type"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/circle_background"
+                    android:padding="16dp"
+                    android:src="@drawable/expenses"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#8846FF" />
+
                 <TextView
-                    android:id="@+id/tvExpenseType"
+                    android:id="@+id/tv_expense_type"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:text="@{expenseModel.expenseType}"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/iv_expense_type"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/tv_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"
+                    app:formattedCurrency="@{expenseModel}"
+                    app:layout_constraintStart_toEndOf="@+id/iv_expense_type"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_expense_type" />
 
                 <TextView
-                    android:id="@+id/tvAmount"
+                    android:id="@+id/tv_date"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@{String.valueOf(expenseModel.amount)}"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvExpenseType" />
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@{String.valueOf(expenseModel.date)}"
+                    app:layout_constraintStart_toEndOf="@+id/iv_expense_type"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_amount" />
 
                 <Button
-                    android:id="@+id/btnApprove"
-                    android:layout_width="150dp"
+                    android:id="@+id/btn_approve"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:backgroundTint="#20F328"
-                    android:text="@string/approve_text"
-                    app:icon="@drawable/baseline_check_24"
                     android:onClick="@{() -> clickListener.onApproveButtonClick(expenseModel)}"
+                    android:text=""
+                    app:backgroundTint="#84EF88"
+                    app:icon="@drawable/baseline_check_24"
                     app:iconGravity="textStart"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
-                    android:id="@+id/btnReject"
-                    android:layout_width="150dp"
+                    android:id="@+id/btn_reject"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    app:backgroundTint="#F44336"
                     android:onClick="@{() -> clickListener.onRejectButtonClick(expenseModel)}"
-                    android:text="@string/reject_text"
+                    android:text=""
+                    app:backgroundTint="#FA6B61"
                     app:icon="@drawable/baseline_close_24"
                     app:iconGravity="textStart"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/btnApprove" />
+                    app:layout_constraintTop_toBottomOf="@+id/btn_approve" />
+
+                <TextView
+                    android:id="@+id/tv_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@{expenseModel.userId}"
+                    app:layout_constraintStart_toEndOf="@+id/iv_expense_type"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_date" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

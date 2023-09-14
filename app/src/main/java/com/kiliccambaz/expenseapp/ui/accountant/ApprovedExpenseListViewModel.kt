@@ -39,7 +39,7 @@ class ApprovedExpenseListViewModel: ViewModel() {
                                 .orderByChild("statusId")
                                 .equalTo(2.0)
 
-                            expensesQuery.addListenerForSingleValueEvent(object :
+                            expensesQuery.addValueEventListener(object :
                                 ValueEventListener {
                                 override fun onDataChange(expensesDataSnapshot: DataSnapshot) {
                                     val expenseList = mutableListOf<ExpenseModel>()
@@ -113,7 +113,7 @@ class ApprovedExpenseListViewModel: ViewModel() {
                             val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
                             val query = databaseReference.orderByChild("expenseType")
 
-                            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                            query.addValueEventListener(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                                     val expenses = mutableListOf<ExpenseModel>()
 

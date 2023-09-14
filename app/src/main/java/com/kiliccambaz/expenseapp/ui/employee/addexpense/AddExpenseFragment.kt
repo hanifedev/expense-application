@@ -3,6 +3,7 @@ package com.kiliccambaz.expenseapp.ui.employee.addexpense
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
 import androidx.fragment.app.Fragment
@@ -17,6 +18,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.textfield.TextInputLayout
 import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.ExpenseModel
@@ -30,6 +32,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.Text
 import java.text.DecimalFormat
+import kotlin.math.exp
 
 class AddExpenseFragment : Fragment(), CustomExpenseView.AmountChangeListener {
 
@@ -47,6 +50,16 @@ class AddExpenseFragment : Fragment(), CustomExpenseView.AmountChangeListener {
         binding = FragmentAddExpenseBinding.inflate(layoutInflater)
         addExpenseViewModel = ViewModelProvider(this)[AddExpenseViewModel::class.java]
 
+        val args: AddExpenseFragmentArgs by navArgs()
+        val expenseModel = args.expenseModel
+
+        expenseModel?.let {
+            binding!!.txtAmount.text = expenseModel.amount.toString().toEditable()
+            binding!!.txtDescription.text = expenseModel.description.toEditable()
+            binding!!.autoCompleteExpenseType.text = expenseModel.expenseType.toEditable()
+            binding!!.autoCompleteCurrencyType.text = expenseModel.currencyType.toEditable()
+        }
+
         val expenseTypes = resources.getStringArray(R.array.expense_types)
         val arrayAdapterExpense = ArrayAdapter(requireContext(), R.layout.dropdown_item, expenseTypes)
         binding!!.autoCompleteExpenseType.setAdapter(arrayAdapterExpense)
@@ -54,6 +67,8 @@ class AddExpenseFragment : Fragment(), CustomExpenseView.AmountChangeListener {
         val currencyTypes = resources.getStringArray(R.array.currency_types)
         val arrayAdapterCurrency = ArrayAdapter(requireContext(), R.layout.dropdown_item, currencyTypes)
         binding!!.autoCompleteCurrencyType.setAdapter(arrayAdapterCurrency)
+
+
 
         binding!!.autoCompleteCurrencyType.addTextChangedListener(object : TextWatcher {
 
@@ -148,7 +163,7 @@ class AddExpenseFragment : Fragment(), CustomExpenseView.AmountChangeListener {
                             binding!!.txtDescriptionInputLayout.error = getString(R.string.description_validation)
                         } else {
                             binding!!.txtDescriptionInputLayout.error = null
-                            expenseList.add(ExpenseModel(amount = amount.toDouble(), date  = DateTimeUtils.getCurrentDateTimeAsString(), description = description, expenseType = expenseType.toString(), userId = UserManager.getUserId() ?: "", currencyType =  currencyType.toString()))
+                            expenseList.add(ExpenseModel(expenseId = expenseModel?.expenseId ?: "", amount = amount.toDouble(), date  = DateTimeUtils.getCurrentDateTimeAsString(), description = description, expenseType = expenseType.toString(), userId = UserManager.getUserId() ?: "", currencyType =  currencyType.toString()))
                             if(customExpenseViews.isEmpty()) {
                                 addExpenseViewModel.saveExpenses(expenseList)
                             } else {
@@ -227,6 +242,10 @@ class AddExpenseFragment : Fragment(), CustomExpenseView.AmountChangeListener {
 
     private fun updateTotalAmount(newAmount: Double) {
         convertDecimalFormat(newAmount)
+    }
+
+    fun String.toEditable(): Editable {
+        return SpannableStringBuilder(this)
     }
 
 }

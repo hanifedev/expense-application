@@ -7,14 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.databinding.FragmentWaitingExpensesBinding
 
 class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
@@ -43,6 +42,19 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
             showFilterPopup()
         }
 
+        waitingViewModel.updateResponse.observe(viewLifecycleOwner) { response ->
+            when(response) {
+                is Result.Success -> {
+                    if (response.data) {
+                        Toast.makeText(context, R.string.transaction_successfully, Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                else -> {}
+            }
+
+        }
+
         return binding!!.root
     }
 
@@ -57,20 +69,20 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
 
     private fun showDescriptionDialog(expenseModel: ExpenseModel) {
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("Değişiklik İsteği")
+        builder.setTitle(getString(R.string.change_request))
 
         val inflater = LayoutInflater.from(context)
         val dialogView = inflater.inflate(R.layout.custom_description_dialog, null)
         val editTextDescription = dialogView.findViewById<TextInputEditText>(R.id.txtDescription)
 
         builder.setView(dialogView)
-        builder.setPositiveButton("Tamam") { _, _ ->
+        builder.setPositiveButton(getString(R.string.save_button_text)) { _, _ ->
             val description = editTextDescription.text.toString()
             expenseModel.rejectedReason = description
-            expenseModel.statusId = 4
+            expenseModel.statusId = 3
             waitingViewModel.updateExpense(expenseModel)
         }
-        builder.setNegativeButton("Vazgeç") { _, _ -> }
+        builder.setNegativeButton(getString(R.string.cancel)) { _, _ -> }
 
         val dialog = builder.create()
         dialog.show()
@@ -103,13 +115,13 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
             }
         }
 
-        builder.setPositiveButton("Tamam") { dialog, _ ->
+        builder.setPositiveButton(getString(R.string.save_button_text)) { dialog, _ ->
             waitingViewModel.getExpensesByTypes(selectedExpenseTypes) { expenseList ->
                 waitingExpensesAdapter.updateList(expenseList)
             }
             dialog.dismiss()
         }
-        builder.setNegativeButton("İptal") { dialog, _ ->
+        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
             dialog.dismiss()
         }
 

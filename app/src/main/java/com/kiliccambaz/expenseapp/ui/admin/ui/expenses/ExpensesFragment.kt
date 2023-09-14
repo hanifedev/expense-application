@@ -35,7 +35,7 @@ class ExpensesFragment : Fragment(), ExpenseAdapterClickListener {
         _binding = FragmentExpensesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         binding.toolbarExpensesTitle.text = "Expense List"
-        expenseListAdapter = ExpenseListAdapter( this)
+        expenseListAdapter = ExpenseListAdapter( requireContext(), this)
         binding.rvExpenseList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvExpenseList.adapter = expenseListAdapter
 

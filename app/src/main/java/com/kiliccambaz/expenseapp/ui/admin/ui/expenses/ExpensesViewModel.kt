@@ -30,7 +30,7 @@ class ExpensesViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val databaseReference = Firebase.database.reference.child("expenses")
 
-            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            databaseReference.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     if (dataSnapshot.exists()) {
                         val expenseList = mutableListOf<ExpenseModel>()
@@ -67,7 +67,7 @@ class ExpensesViewModel : ViewModel() {
             try {
                 val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
 
-                databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                databaseReference.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         val expenses = mutableListOf<ExpenseModel>()
 
