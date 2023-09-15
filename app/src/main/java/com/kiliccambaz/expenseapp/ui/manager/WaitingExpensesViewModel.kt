@@ -12,8 +12,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.data.Result
+import com.kiliccambaz.expenseapp.data.UserModel
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import com.kiliccambaz.expenseapp.utils.UserManager
@@ -24,11 +26,15 @@ class WaitingExpensesViewModel : ViewModel() {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
 
-    private val _expenseList = MutableLiveData<List<ExpenseModel>>()
-    val expenseList : LiveData<List<ExpenseModel>> = _expenseList
+    private val _expenseList = MutableLiveData<List<ExpenseHistoryUIModel>>()
+    val expenseList : LiveData<List<ExpenseHistoryUIModel>?> = _expenseList
+
+    private val _filteredList = MutableLiveData<List<ExpenseHistoryUIModel>>()
+    val filteredList : LiveData<List<ExpenseHistoryUIModel>?> = _filteredList
 
     private val _updateResponse = MutableLiveData<Result<Boolean>>()
     val updateResponse : LiveData<Result<Boolean>> = _updateResponse
+
 
     init {
         fetchWaitingExpenseList { list ->
@@ -36,7 +42,7 @@ class WaitingExpensesViewModel : ViewModel() {
         }
     }
 
-    private fun fetchWaitingExpenseList(onExpenseListFetched: (List<ExpenseModel>) -> Unit) {
+    private fun fetchWaitingExpenseList(onExpenseListFetched: (List<ExpenseHistoryUIModel>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val databaseReference = Firebase.database.reference
@@ -47,6 +53,7 @@ class WaitingExpensesViewModel : ViewModel() {
 
                 usersQuery.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(usersDataSnapshot: DataSnapshot) {
+                        val expenses = arrayListOf<ExpenseHistoryUIModel>()
                         if (usersDataSnapshot.exists()) {
                             val managerUserIds = mutableListOf<String>()
 
@@ -55,27 +62,51 @@ class WaitingExpensesViewModel : ViewModel() {
                             }
 
                             val expensesQuery = databaseReference.child("expenses")
-                                .orderByChild("statusId")
-                                .equalTo(1.0)
 
                             expensesQuery.addValueEventListener(object : ValueEventListener {
                                 override fun onDataChange(expensesDataSnapshot: DataSnapshot) {
-                                    val expenseList = mutableListOf<ExpenseModel>()
 
                                     for (expenseSnapshot in expensesDataSnapshot.children) {
-                                        val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
+                                        val expense =
+                                            expenseSnapshot.getValue(ExpenseModel::class.java)
                                         if (managerUserIds.contains(expense?.userId)) {
-                                            expense?.let { expenseList.add(it) }
+                                            expense?.let {
+                                                if (expense.statusId == 1) {
+                                                    setUsername(expense.userId) { username ->
+                                                        val historyUIModel = ExpenseHistoryUIModel()
+                                                        historyUIModel.expenseId = expense.expenseId
+                                                        historyUIModel.date = expense.date
+                                                        historyUIModel.statusId = expense.statusId
+                                                        historyUIModel.description = expense.description
+                                                        historyUIModel.rejectedReason =
+                                                            expense.rejectedReason
+                                                        historyUIModel.currencyType =
+                                                            expense.currencyType
+                                                        historyUIModel.amount = expense.amount
+                                                        historyUIModel.expenseType = expense.expenseType
+                                                        historyUIModel.userId = expense.userId
+                                                        historyUIModel.user = username
+                                                        expenses.add(historyUIModel)
+                                                        onExpenseListFetched(expenses)
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
 
-                                    onExpenseListFetched(expenseList)
+                                    onExpenseListFetched(expenses)
+
                                 }
 
                                 override fun onCancelled(expensesDatabaseError: DatabaseError) {
-                                    val errorMessage = "Firebase Realtime Database error: ${expensesDatabaseError.message}"
-                                    ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
-                                    FirebaseCrashlytics.getInstance().recordException(java.lang.Exception(errorMessage))
+                                    val errorMessage =
+                                        "Firebase Realtime Database error: ${expensesDatabaseError.message}"
+                                    ErrorUtils.addErrorToDatabase(
+                                        java.lang.Exception(errorMessage),
+                                        ""
+                                    )
+                                    FirebaseCrashlytics.getInstance()
+                                        .recordException(java.lang.Exception(errorMessage))
                                     onExpenseListFetched(emptyList())
                                 }
                             })
@@ -85,12 +116,15 @@ class WaitingExpensesViewModel : ViewModel() {
                     }
 
                     override fun onCancelled(usersDatabaseError: DatabaseError) {
-                        val errorMessage = "Firebase Realtime Database error: ${usersDatabaseError.message}"
+                        val errorMessage =
+                            "Firebase Realtime Database error: ${usersDatabaseError.message}"
                         ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
-                        FirebaseCrashlytics.getInstance().recordException(java.lang.Exception(errorMessage))
+                        FirebaseCrashlytics.getInstance()
+                            .recordException(java.lang.Exception(errorMessage))
                         onExpenseListFetched(emptyList())
                     }
                 })
+
             } catch (e: Exception) {
                 val errorMessage = "Firebase Realtime Database error: ${e.message}"
                 ErrorUtils.addErrorToDatabase(e, errorMessage)
@@ -100,11 +134,37 @@ class WaitingExpensesViewModel : ViewModel() {
         }
     }
 
-    fun updateExpense(expenseModel: ExpenseModel) {
+    private fun setUsername(userId: String, callback: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val userRef = Firebase.database.getReference("users").child(userId)
+                userRef.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                        val user = dataSnapshot.getValue(UserModel::class.java)
+                        user?.let { userModel ->
+                            callback(userModel.username)
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        ErrorUtils.addErrorToDatabase(databaseError.toException(), UserManager.getUserId())
+                        FirebaseCrashlytics.getInstance().recordException(databaseError.toException())
+                    }
+                })
+            } catch (ex: java.lang.Exception) {
+                ErrorUtils.addErrorToDatabase(ex, UserManager.getUserId())
+                FirebaseCrashlytics.getInstance().recordException(ex)
+            }
+        }
+    }
+
+    fun updateExpense(expenseModel: ExpenseHistoryUIModel) {
         viewModelScope.launch(Dispatchers.IO) {
         val expensesRef: DatabaseReference = database.getReference("expenses")
 
         try {
+            val expenseModel = ExpenseModel(expenseModel.amount, expenseModel.date, expenseModel.description, expenseModel.expenseType, expenseModel.userId, expenseModel.currencyType, expenseModel.statusId, expenseModel.rejectedReason, expenseModel.expenseId)
             val updateData = expenseModel.toMap()
 
             expensesRef.child(expenseModel.expenseId).updateChildren(updateData)
@@ -127,23 +187,35 @@ class WaitingExpensesViewModel : ViewModel() {
     }
 
     private fun saveExpenseHistory(expense: ExpenseModel) {
-        val expenseMap = HashMap<String, Any>()
-        expenseMap["date"] = DateTimeUtils.getCurrentDateTimeAsString()
-        expenseMap["expenseId"] = expense.expenseId
-        expenseMap["status"] = expense.statusId
-        val expenseRef: DatabaseReference = database.getReference("expenseHistory")
-        val documentKey = expenseRef.push().key
-        if (documentKey != null) {
-            expenseRef.child(documentKey).setValue(expenseMap)
-                .addOnFailureListener { e ->
-                    e.printStackTrace()
-                    ErrorUtils.addErrorToDatabase(e, e.message.toString())
-                    FirebaseCrashlytics.getInstance().recordException(e)
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            val expenseMap = HashMap<String, Any>()
+            expenseMap["date"] = DateTimeUtils.getCurrentDateTimeAsString()
+            expenseMap["expenseId"] = expense.expenseId
+            expenseMap["status"] = expense.statusId
+            val expenseRef: DatabaseReference = database.getReference("expenseHistory")
+            val documentKey = expenseRef.push().key
+            if (documentKey != null) {
+                expenseRef.child(documentKey).setValue(expenseMap)
+                    .addOnFailureListener { e ->
+                        e.printStackTrace()
+                        ErrorUtils.addErrorToDatabase(e, e.message.toString())
+                        FirebaseCrashlytics.getInstance().recordException(e)
+                    }
+            }
         }
     }
 
-    fun getExpensesByTypes(expenseTypes: List<String>, onExpensesFetched: (List<ExpenseModel>) -> Unit) {
+    fun getExpensesByTypes(expenseTypes: List<String>) {
+        val filteredExpenses = _expenseList.value?.filter { expenseTypes.contains(it.expenseType) }
+        if(filteredExpenses?.isEmpty() == true) {
+            _filteredList.value = emptyList()
+        } else {
+            _filteredList.value = filteredExpenses!!
+        }
+    }
+
+    /*
+    fun getExpensesByTypes(expenseTypes: List<String>) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val databaseReference = Firebase.database.reference
@@ -166,29 +238,38 @@ class WaitingExpensesViewModel : ViewModel() {
 
                             query.addValueEventListener(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                    val expenses = mutableListOf<ExpenseModel>()
+                                    val expenses = mutableListOf<ExpenseHistoryUIModel>()
 
                                     for (expenseSnapshot in dataSnapshot.children) {
                                         val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
                                         expense?.let {
-                                            if (it.expenseType in expenseTypes && managerUserIds.contains(expense?.userId)) {
-                                                expenses.add(it)
+                                            if (it.expenseType in expenseTypes && managerUserIds.contains(expense.userId)) {
+                                                val historyUIModel = ExpenseHistoryUIModel()
+                                                historyUIModel.expenseId = expense.expenseId
+                                                historyUIModel.date = expense.date
+                                                historyUIModel.statusId = expense.statusId
+                                                historyUIModel.description = expense.description
+                                                historyUIModel.rejectedReason = expense.rejectedReason
+                                                historyUIModel.currencyType = expense.currencyType
+                                                historyUIModel.amount = expense.amount
+                                                historyUIModel.expenseType = expense.expenseType
+                                                setUsername(historyUIModel, expense.userId)
                                             }
                                         }
                                     }
 
-                                    onExpensesFetched(expenses)
+                                    _expenseList.postValue(expenses)
                                 }
 
                             override fun onCancelled(databaseError: DatabaseError) {
                                 databaseError.toException().printStackTrace()
                                 ErrorUtils.addErrorToDatabase(databaseError.toException(), databaseError.toException().message.toString())
                                 FirebaseCrashlytics.getInstance().recordException(databaseError.toException())
-                                onExpensesFetched(emptyList())
+                                _expenseList.postValue(emptyList())
                             }
                             })
                         } else {
-                            onExpensesFetched(emptyList())
+                            _expenseList.postValue(emptyList())
                         }
                     }
 
@@ -196,13 +277,13 @@ class WaitingExpensesViewModel : ViewModel() {
                         val errorMessage = "Firebase Realtime Database error: ${usersDatabaseError.message}"
                         ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), UserManager.getUserId())
                         FirebaseCrashlytics.getInstance().recordException(java.lang.Exception(errorMessage))
-                        onExpensesFetched(emptyList())
+                        _expenseList.postValue(emptyList())
                     }
                 })
     } catch (ex: java.lang.Exception) {
-                ErrorUtils.addErrorToDatabase(ex, ex.message.toString())
+                ErrorUtils.addErrorToDatabase(ex, UserManager.getUserId())
                 FirebaseCrashlytics.getInstance().recordException(ex)
     }
         }
-    }
+    }*/
 }

@@ -52,6 +52,12 @@
     <string name="email_or_username_validation">Email or username cannot be empty</string>
     <string name="transaction_successfully">Your transaction has been completed successfully</string>
     <string name="email_or_username">Email or username</string>
+    <string name="update_expense">Update expense</string>
+    <string name="expense_type_chart">Percentage Expense Type Chart</string>
+    <string name="user_expense_total_chart">User Expense Total Chart</string>
+    <string name="daily_expenses_chart">Daily Expenses Chart</string>
+    <string name="all">All</string>
+    <string name="register">Don\'t you have an account? Register</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>

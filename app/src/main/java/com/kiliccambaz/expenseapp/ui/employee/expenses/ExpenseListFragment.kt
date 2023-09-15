@@ -56,20 +56,25 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
             val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment(model)
             findNavController().navigate(action)
         } else if(model.statusId == 3) {
-            showDescriptionDetailDialog(model.rejectedReason)
+            showDescriptionDetailDialog(model)
         }
     }
 
-    private fun showDescriptionDetailDialog(description: String) {
+    private fun showDescriptionDetailDialog(model: ExpenseModel) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_description_detail, null)
         val descriptionTextView = dialogView.findViewById<TextView>(R.id.tvDescription)
 
-        descriptionTextView.text = description
+        descriptionTextView.text = model.rejectedReason
 
         val dialogBuilder = AlertDialog.Builder(context)
             .setView(dialogView)
             .setTitle("Description Detail")
-            .setPositiveButton("Close") { dialog, _ ->
+            .setPositiveButton(R.string.update_expense) { dialog, _ ->
+                dialog.dismiss()
+                val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment(model)
+                findNavController().navigate(action)
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
                 dialog.dismiss()
             }
 
@@ -105,13 +110,13 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
             }
         }
 
-        builder.setPositiveButton("Tamam") { dialog, _ ->
+        builder.setPositiveButton(getString(R.string.save_button_text)) { dialog, _ ->
             expenseListViewModel.getExpensesByTypes(selectedExpenseTypes) { expenseList ->
                 expenseListAdapter.updateList(expenseList)
             }
             dialog.dismiss()
         }
-        builder.setNegativeButton("İptal") { dialog, _ ->
+        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
             dialog.dismiss()
         }
 

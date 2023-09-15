@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.kiliccambaz.expenseapp.R
+import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.databinding.FragmentWaitingExpensesBinding
@@ -32,10 +33,13 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         waitingExpensesAdapter = WaitingExpensesAdapter(this)
         binding!!.rvWaitingExpenseList.layoutManager = LinearLayoutManager(requireContext())
         binding!!.rvWaitingExpenseList.adapter = waitingExpensesAdapter
+
         waitingViewModel.expenseList.observe(viewLifecycleOwner) { expenseList ->
-            expenseList?.let {
-                waitingExpensesAdapter.updateList(expenseList)
-            }
+            waitingExpensesAdapter.updateList(expenseList)
+        }
+
+        waitingViewModel.filteredList.observe(viewLifecycleOwner) { filteredList ->
+            waitingExpensesAdapter.updateList(filteredList)
         }
 
         binding!!.toolbar.filterIcon.setOnClickListener {
@@ -58,16 +62,16 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         return binding!!.root
     }
 
-    override fun onApproveButtonClick(expenseModel: ExpenseModel) {
+    override fun onApproveButtonClick(expenseModel: ExpenseHistoryUIModel) {
         expenseModel.statusId = 2
         waitingViewModel.updateExpense(expenseModel)
     }
 
-    override fun onRejectButtonClick(expenseModel: ExpenseModel) {
+    override fun onRejectButtonClick(expenseModel: ExpenseHistoryUIModel) {
         showDescriptionDialog(expenseModel)
     }
 
-    private fun showDescriptionDialog(expenseModel: ExpenseModel) {
+    private fun showDescriptionDialog(expenseModel: ExpenseHistoryUIModel) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle(getString(R.string.change_request))
 
@@ -116,9 +120,7 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         }
 
         builder.setPositiveButton(getString(R.string.save_button_text)) { dialog, _ ->
-            waitingViewModel.getExpensesByTypes(selectedExpenseTypes) { expenseList ->
-                waitingExpensesAdapter.updateList(expenseList)
-            }
+            waitingViewModel.getExpensesByTypes(selectedExpenseTypes)
             dialog.dismiss()
         }
         builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
@@ -128,6 +130,5 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         val dialog = builder.create()
         dialog.show()
     }
-
 
 }

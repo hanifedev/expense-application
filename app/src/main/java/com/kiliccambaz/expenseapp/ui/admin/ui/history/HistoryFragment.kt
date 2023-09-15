@@ -32,7 +32,7 @@ class HistoryFragment : Fragment() {
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val root: View = binding.root
         binding.toolbarHistory.toolbarTitle.text = "Expense History List"
-        historyAdapter = HistoryAdapter()
+        historyAdapter = HistoryAdapter(requireContext())
         binding.rvHistoryList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvHistoryList.adapter = historyAdapter
 
@@ -41,6 +41,10 @@ class HistoryFragment : Fragment() {
             historyList?.let {
                 historyAdapter.updateList(historyList)
             }
+        }
+
+        historyViewModel.filteredList.observe(viewLifecycleOwner) { filteredList ->
+            historyAdapter.updateList(filteredList)
         }
 
         binding.toolbarHistory.filterIcon.setOnClickListener {
@@ -76,11 +80,11 @@ class HistoryFragment : Fragment() {
             }
         }
 
-        builder.setPositiveButton("Tamam") { dialog, _ ->
-            historyViewModel.getExpensesByStatus(selectedStatusTypes)
+        builder.setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+            historyViewModel.getExpensesFromStatus(selectedStatusTypes)
             dialog.dismiss()
         }
-        builder.setNegativeButton("İptal") { dialog, _ ->
+        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
             dialog.dismiss()
         }
 

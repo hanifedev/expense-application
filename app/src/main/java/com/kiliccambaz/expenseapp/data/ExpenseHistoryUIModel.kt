@@ -8,4 +8,5 @@ data class ExpenseHistoryUIModel(var user: String = "",
                                  var currencyType: String = "",
                                  var statusId: Int = 1,
                                  var rejectedReason: String = "",
-                                 var expenseId: String = "")
+                                 var expenseId: String = "",
+                                 var userId: String = "")

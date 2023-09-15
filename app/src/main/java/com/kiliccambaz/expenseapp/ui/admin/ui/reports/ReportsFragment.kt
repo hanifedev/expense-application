@@ -216,6 +216,8 @@ class ReportsFragment : Fragment() {
         xl.setDrawGridLines(false)
         xl.granularity = 1f
         xl.valueFormatter = IndexAxisValueFormatter(labels)
+        xl.labelRotationAngle = -45f
+        xl.textSize = 6f
 
         val yl: YAxis = barChart.axisLeft
         yl.setDrawAxisLine(true)

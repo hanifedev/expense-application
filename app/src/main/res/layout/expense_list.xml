@@ -85,8 +85,10 @@
                     android:id="@+id/tvAmount"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    app:formattedCurrency="@{expenseModel}"
+                    android:layout_marginEnd="8dp"
+                    android:textAlignment="textEnd"
                     android:textStyle="bold"
+                    app:formattedCurrency="@{expenseModel}"
                     app:layout_constraintBottom_toTopOf="@+id/tvDate"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -105,6 +107,8 @@
                     android:id="@+id/tvStatus"
                     android:layout_width="130dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:textAlignment="textEnd"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
 

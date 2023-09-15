@@ -60,8 +60,8 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:clickable="true"
-        android:text="Kayıt Olunuz"
-        android:textColor="@color/design_default_color_secondary"
+        android:text="@string/register"
+        android:textColor="#9D73E8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etPasswordInputLayout" />
 
@@ -70,6 +70,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="174dp" />
+        app:layout_constraintGuide_begin="165dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
