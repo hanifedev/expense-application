@@ -10,7 +10,9 @@ import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kiliccambaz.expenseapp.R
+import java.lang.Exception
 
 class CustomExpenseView(context: Context, private val listener: AmountChangeListener) : LinearLayout(context) {
     init {
@@ -44,10 +46,20 @@ class CustomExpenseView(context: Context, private val listener: AmountChangeList
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val amountTextInputLayout = findViewById<TextInputLayout>(R.id.txtAmountInputLayout)
-                amountTextInputLayout.error = null
-                val amount = s.toString().toDoubleOrNull() ?: 0.0
-                listener.onAmountChanged(amount)
+                try {
+                    val amountTextInputLayout = findViewById<TextInputLayout>(R.id.txtAmountInputLayout)
+                    val amount = s.toString().toDoubleOrNull() ?: 0.0
+                    if(amount > 5000) {
+                        amountTextInputLayout.error = context.getString(R.string.amount_price_validation)
+                    } else {
+                        amountTextInputLayout.error = null
+                        listener.onAmountChanged(amount)
+                    }
+                } catch (ex: Exception) {
+                    ErrorUtils.addErrorToDatabase(ex, UserManager.getUserId())
+                    FirebaseCrashlytics.getInstance().recordException(ex)
+                }
+
             }
 
             override fun afterTextChanged(s: Editable?) {

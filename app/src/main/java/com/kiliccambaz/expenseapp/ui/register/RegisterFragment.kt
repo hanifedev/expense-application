@@ -54,6 +54,7 @@ class RegisterFragment : Fragment() {
                             binding.etPasswordInputLayout.error = null
                             if (password == confirmPassword) {
                                 registerViewModel.registerWithEmailAndPassword(
+                                    username,
                                     email,
                                     password
                                 ) { result ->

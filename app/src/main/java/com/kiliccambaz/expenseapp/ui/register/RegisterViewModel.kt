@@ -14,6 +14,7 @@ import com.kiliccambaz.expenseapp.utils.HashUtils
 class RegisterViewModel : ViewModel() {
 
     fun registerWithEmailAndPassword(
+        username: String,
         email: String,
         password: String,
         onRegisterComplete: (Result<String>) -> Unit
@@ -22,23 +23,23 @@ class RegisterViewModel : ViewModel() {
             val usersReference = Firebase.database.reference.child("users")
 
             val user = UserModel(
+                username = username,
                 email = email,
                 password = HashUtils.hashPassword(password),
-                role = 1,
-                managerId = "-Ndj8KEUEI5KmBhOqnJr"
+                role = 1
             )
 
             usersReference.push().setValue(user) { databaseError, _ ->
                 if (databaseError == null) {
-                    onRegisterComplete(Result.Success("Kayıt başarılı"))
+                    onRegisterComplete(Result.Success("Register successfully"))
                 } else {
-                    onRegisterComplete(Result.Error("Firebase kaydetme hatası: ${databaseError.message}"))
+                    onRegisterComplete(Result.Error("Firebase save error: ${databaseError.message}"))
                 }
             }
         } catch (e: Exception) {
             ErrorUtils.addErrorToDatabase(e, "")
             FirebaseCrashlytics.getInstance().recordException(e)
-            onRegisterComplete(Result.Error("Kayıt işlemi başarısız oldu."))
+            onRegisterComplete(Result.Error("Register failed"))
         }
     }
 

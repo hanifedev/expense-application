@@ -103,9 +103,9 @@ class ReportsFragment : Fragment() {
         val labels = mutableListOf<String>()
         var index = 0f
 
-        for ((userEmail, totalExpense) in expenseTypeMap) {
+        for ((expenseType, totalExpense) in expenseTypeMap) {
             entries.add(PieEntry(index, totalExpense))
-            labels.add(userEmail)
+            labels.add(expenseType)
             index++
         }
 

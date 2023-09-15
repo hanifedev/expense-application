@@ -39,6 +39,12 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
             }
         }
 
+        expenseListViewModel.filteredList.observe(viewLifecycleOwner) { filteredList ->
+            filteredList?.let {
+                expenseListAdapter.updateList(filteredList)
+            }
+        }
+
         binding!!.fabAddExpense.setOnClickListener {
             val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment(null)
             findNavController().navigate(action)
@@ -111,9 +117,7 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
         }
 
         builder.setPositiveButton(getString(R.string.save_button_text)) { dialog, _ ->
-            expenseListViewModel.getExpensesByTypes(selectedExpenseTypes) { expenseList ->
-                expenseListAdapter.updateList(expenseList)
-            }
+            expenseListViewModel.getExpensesByTypes(selectedExpenseTypes)
             dialog.dismiss()
         }
         builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->

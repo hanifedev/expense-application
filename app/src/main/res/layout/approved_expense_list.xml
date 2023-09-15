@@ -13,7 +13,7 @@
 
         <variable
             name="expenseModel"
-            type="com.kiliccambaz.expenseapp.data.ExpenseModel" />
+            type="com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel" />
 
         <variable
             name="clickListener"
@@ -33,7 +33,6 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="3dp"
             app:cardMaxElevation="3dp"
-            android:onClick="@{() -> clickListener.onPayButtonClick(expenseModel)}"
             app:cardUseCompatPadding="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -108,9 +107,33 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
 
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="29dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="#EADDFF"
+                    app:cardCornerRadius="16dp"
+                    app:layout_constraintStart_toEndOf="@+id/ivExpenseType"
+                    app:layout_constraintTop_toBottomOf="@+id/tvDate">
+
+                    <TextView
+                        android:id="@+id/tvUser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="@{expenseModel.user}"
+                        android:textColor="#673AB7"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                </androidx.cardview.widget.CardView>
+
                 <Button
                     android:id="@+id/btnApprove"
-                    android:layout_width="150dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:onClick="@{() -> clickListener.onPayButtonClick(expenseModel)}"
                     android:text="@string/pay_text"

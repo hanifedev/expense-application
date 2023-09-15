@@ -10,6 +10,7 @@ import android.widget.CheckBox
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
+import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.databinding.FragmentApprovedExpenseListBinding
 
@@ -33,9 +34,12 @@ class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener
         binding.rvApprovedExpenseList.adapter = approvedExpenseListAdapter
 
         approvedExpenseListViewModel.expenseList.observe(viewLifecycleOwner) { expenseList ->
-            expenseList?.let {
-                approvedExpenseListAdapter.updateList(expenseList)
-            }
+            approvedExpenseListAdapter.updateList(expenseList)
+        }
+
+        approvedExpenseListViewModel.filteredList.observe(viewLifecycleOwner) { filteredList ->
+            approvedExpenseListAdapter.updateList(filteredList)
+
         }
 
         binding.include.filterIcon.setOnClickListener {
@@ -45,7 +49,7 @@ class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener
         return binding.root
     }
 
-    override fun onPayButtonClick(expenseModel: ExpenseModel) {
+    override fun onPayButtonClick(expenseModel: ExpenseHistoryUIModel) {
         expenseModel.statusId = 5
         approvedExpenseListViewModel.updateExpense(expenseModel)
     }
@@ -77,13 +81,11 @@ class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener
             }
         }
 
-        builder.setPositiveButton("Tamam") { dialog, _ ->
-            approvedExpenseListViewModel.getExpensesByTypes(selectedExpenseTypes) { expenseList ->
-                approvedExpenseListAdapter.updateList(expenseList)
-            }
+        builder.setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+            approvedExpenseListViewModel.getExpensesByTypes(selectedExpenseTypes)
             dialog.dismiss()
         }
-        builder.setNegativeButton("İptal") { dialog, _ ->
+        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
             dialog.dismiss()
         }
 

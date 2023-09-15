@@ -20,17 +20,20 @@ import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.ExpenseModel
 import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.databinding.FragmentAddExpenseBinding
 import com.kiliccambaz.expenseapp.utils.CustomExpenseView
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
+import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.Text
+import java.lang.Exception
 import java.text.DecimalFormat
 import kotlin.math.exp
 
@@ -104,33 +107,39 @@ class AddExpenseFragment : Fragment(), CustomExpenseView.AmountChangeListener {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val hasText = s?.isNotEmpty() == true
-                firstAmount = s.toString().toDouble()
+                try {
+                    val hasText = s?.isNotEmpty() == true
+                    firstAmount = s.toString().toDouble()
 
-                if (hasText) {
-                    if(s.toString().toDouble() < 5000) {
-                    binding!!.txtAmountInputLayout.error = null
+                    if (hasText) {
+                        if(s.toString().toDouble() < 5000) {
+                            binding!!.txtAmountInputLayout.error = null
 
-                    binding!!.cardTotal.visibility = View.VISIBLE
-                    val totalAmount = s.toString()
-                    val selectedCurrency = binding!!.autoCompleteCurrencyType.text.toString()
+                            binding!!.cardTotal.visibility = View.VISIBLE
+                            val totalAmount = s.toString()
+                            val selectedCurrency = binding!!.autoCompleteCurrencyType.text.toString()
 
-                    currencySymbol = when (selectedCurrency) {
-                        "TL" -> "₺"
-                        "USD" -> "$"
-                        "EUR" -> "€"
-                        "PKR" -> "₨"
-                        "INR" -> "₹"
-                        else -> ""
-                    }
+                            currencySymbol = when (selectedCurrency) {
+                                "TL" -> "₺"
+                                "USD" -> "$"
+                                "EUR" -> "€"
+                                "PKR" -> "₨"
+                                "INR" -> "₹"
+                                else -> ""
+                            }
 
-                    convertDecimalFormat(totalAmount.toDouble())
+                            convertDecimalFormat(totalAmount.toDouble())
+                        } else {
+                            binding!!.txtAmountInputLayout.error = getString(R.string.amount_price_validation)
+                        }
                     } else {
-                        binding!!.txtAmountInputLayout.error = getString(R.string.amount_price_validation)
+                        binding!!.cardTotal.visibility = View.INVISIBLE
                     }
-                } else {
-                    binding!!.cardTotal.visibility = View.INVISIBLE
+                } catch (ex: Exception) {
+                    ErrorUtils.addErrorToDatabase(ex, UserManager.getUserId())
+                    FirebaseCrashlytics.getInstance().recordException(ex)
                 }
+
             }
 
             override fun afterTextChanged(s: Editable?) {

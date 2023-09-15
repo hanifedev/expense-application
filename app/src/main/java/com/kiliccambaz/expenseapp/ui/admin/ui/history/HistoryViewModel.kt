@@ -88,6 +88,7 @@ class HistoryViewModel : ViewModel() {
                                 expenseHistoryUIModel.currencyType = expense.currencyType
                                 expenseHistoryUIModel.description = expense.description
                                 expenseHistoryUIModel.rejectedReason = expense.rejectedReason
+                                expenseHistoryUIModel.userId = expense.userId
                                 expenseHistoryUIModel.user = username
                                 histories.add(expenseHistoryUIModel)
                                 _historyList.postValue(histories)

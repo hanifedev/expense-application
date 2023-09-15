@@ -17,16 +17,16 @@ class ApprovedExpenseListAdapter constructor(private val approvedExpenseListClic
 
     class ApprovedExpenseListViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(expenseModel: ExpenseModel, clickListener: ApprovedExpenseListClickListener, position: Int) {
+        fun bind(expenseModel: ExpenseHistoryUIModel?, clickListener: ApprovedExpenseListClickListener, position: Int) {
             binding.setVariable(BR.expenseModel, expenseModel)
             binding.setVariable(BR.clickListener, clickListener)
             binding.setVariable(BR.position, position)
         }
     }
 
-    private var expenseList: List<ExpenseModel> = arrayListOf()
+    private var expenseList: List<ExpenseHistoryUIModel>? = arrayListOf()
 
-    fun updateList(expenseList: List<ExpenseModel>) {
+    fun updateList(expenseList: List<ExpenseHistoryUIModel>?) {
         this.expenseList = expenseList
         notifyDataSetChanged()
     }
@@ -38,18 +38,20 @@ class ApprovedExpenseListAdapter constructor(private val approvedExpenseListClic
     }
 
     override fun onBindViewHolder(holder: ApprovedExpenseListViewHolder, position: Int) {
-        val expense = expenseList[position]
+        val expense = expenseList?.get(position)
         holder.bind(expense, approvedExpenseListClickListener, position)
-        when (expense.expenseType) {
-            "Gas" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.gas)
-            "Food" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.food)
-            "Taxi" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.taxi)
-            "Accommodation" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(
-                R.drawable.otel)
-            else -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.expenses)
+        if (expense != null) {
+            when (expense.expenseType) {
+                "Gas" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.gas)
+                "Food" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.food)
+                "Taxi" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.taxi)
+                "Accommodation" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(
+                    R.drawable.otel)
+                else -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.expenses)
+            }
         }
 
-        when (expense.statusId) {
+        when (expense?.statusId) {
             1 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Waiting"
             2 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Approved"
             3 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Change Request"
@@ -58,6 +60,6 @@ class ApprovedExpenseListAdapter constructor(private val approvedExpenseListClic
         }
     }
 
-    override fun getItemCount() = expenseList.size
+    override fun getItemCount() = expenseList?.size ?: 0
 
 }
