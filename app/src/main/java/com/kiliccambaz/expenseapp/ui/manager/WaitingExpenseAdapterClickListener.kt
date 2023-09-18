@@ -1,9 +1,10 @@
 package com.kiliccambaz.expenseapp.ui.manager
 
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 
 interface WaitingExpenseAdapterClickListener {
-    fun onApproveButtonClick(expenseModel: ExpenseHistoryUIModel)
-    fun onRejectButtonClick(expenseModel: ExpenseHistoryUIModel)
+    fun onApproveButtonClick(expenseModel: ExpenseUIModel)
+    fun onRejectButtonClick(expenseModel: ExpenseUIModel)
+
+    fun onShowDetailClick(expenseModel: ExpenseUIModel)
 }

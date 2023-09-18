@@ -10,14 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.FragmentExpensesBinding
 import com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryAdapter
-import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseAdapterClickListener
-import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseListAdapter
-import kotlin.math.exp
+import com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryAdapterClickListener
 
-class ExpensesFragment : Fragment() {
+class ExpensesFragment : Fragment(), HistoryAdapterClickListener {
 
     private var _binding: FragmentExpensesBinding? = null
     private lateinit var expensesViewModel: ExpensesViewModel
@@ -36,7 +34,7 @@ class ExpensesFragment : Fragment() {
         _binding = FragmentExpensesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         binding.toolbarExpensesTitle.text = "Expense List"
-        expenseListAdapter = HistoryAdapter( requireContext())
+        expenseListAdapter = HistoryAdapter( requireContext(), true, this)
         binding.rvExpenseList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvExpenseList.adapter = expenseListAdapter
 
@@ -96,5 +94,9 @@ class ExpensesFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onRecyclerViewItemClick(model: ExpenseUIModel, position: Int) {
+        TODO("Not yet implemented")
     }
 }

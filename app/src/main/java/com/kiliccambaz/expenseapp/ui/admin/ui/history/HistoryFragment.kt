@@ -6,15 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.FragmentHistoryBinding
-import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseListAdapter
 
-class HistoryFragment : Fragment() {
+class HistoryFragment : Fragment(), HistoryAdapterClickListener {
 
     private var _binding: FragmentHistoryBinding? = null
     private lateinit var historyViewModel: HistoryViewModel
@@ -32,7 +31,7 @@ class HistoryFragment : Fragment() {
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val root: View = binding.root
         binding.toolbarHistory.toolbarTitle.text = "Expense History List"
-        historyAdapter = HistoryAdapter(requireContext())
+        historyAdapter = HistoryAdapter(requireContext(), true, this)
         binding.rvHistoryList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvHistoryList.adapter = historyAdapter
 
@@ -95,5 +94,9 @@ class HistoryFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onRecyclerViewItemClick(model: ExpenseUIModel, position: Int) {
+        TODO("Not yet implemented")
     }
 }

@@ -5,13 +5,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.ktx.Firebase
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseDetailModel
+import com.kiliccambaz.expenseapp.data.ExpenseMainModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.data.Result
+import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import com.kiliccambaz.expenseapp.utils.UserManager
 import kotlinx.coroutines.Dispatchers
@@ -22,20 +27,35 @@ class AddExpenseViewModel : ViewModel() {
     private val _addExpenseResponse = MutableLiveData<Result<Boolean>>()
     val addExpenseResponse : LiveData<Result<Boolean>> = _addExpenseResponse
 
-     fun saveExpenses(expenses: List<ExpenseModel>) {
+    private val _expenseList = MutableLiveData<List<ExpenseUIModel>>()
+    val expenseList : LiveData<List<ExpenseUIModel>> = _expenseList
+
+
+    private val mainExpense = MutableLiveData<ExpenseMainModel>()
+
+    fun setMainExpense(expenseModel: ExpenseMainModel) {
+        mainExpense.value = expenseModel
+        getExpenseDetailList()
+    }
+
+    fun saveExpenseDetail(expense: ExpenseDetailModel, expenseDetailId: String) {
          viewModelScope.launch(Dispatchers.IO) {
              try {
-                 val expensesRef = Firebase.database.getReference("expenses")
+                 if(!expenseDetailId.isNullOrEmpty()) {
+                     expense.expenseDetailId = expenseDetailId
+                     updateExpense(expense)
+                 } else {
+                     mainExpense.value?.let { mainExpenseValue ->
+                         val expensesRef = Firebase.database.getReference("expenses").child(mainExpenseValue.expenseId)
 
-                 for (expense in expenses) {
-                     if(expense.expenseId.isNullOrEmpty()) {
-                         val documentKey = expensesRef.push().key
+                         val documentKey = expensesRef.child("expenseDetail").push().key
 
                          if (documentKey != null) {
-                             expense.expenseId = documentKey
-                             expensesRef.child(documentKey).setValue(expense)
+                             expense.expenseDetailId = documentKey
+                             expensesRef.child("expenseDetail").child(documentKey).setValue(expense)
                                  .addOnSuccessListener {
                                      _addExpenseResponse.postValue(Result.Success(true))
+                                     getExpenseDetailList()
                                  }
                                  .addOnFailureListener { e ->
                                      FirebaseCrashlytics.getInstance().recordException(e)
@@ -44,8 +64,6 @@ class AddExpenseViewModel : ViewModel() {
                          } else {
                              _addExpenseResponse.postValue(Result.Error("Belge kimliği oluşturulamadı."))
                          }
-                     } else {
-                         updateExpense(expense)
                      }
                  }
              } catch (e: Exception) {
@@ -56,27 +74,116 @@ class AddExpenseViewModel : ViewModel() {
          }
      }
 
-    private fun updateExpense(expense: ExpenseModel) {
+    private fun updateExpense(expense: ExpenseDetailModel) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("expenses")
                 val expenseUpdates = HashMap<String, Any>()
-                expenseUpdates["/${expense.expenseId}"] = expense.toMap()
+                mainExpense.value?.let {
+                    expenseUpdates["/${mainExpense.value!!.expenseId}/expenseDetail/${expense.expenseDetailId}"] = expense.toMap()
 
-                databaseReference.updateChildren(expenseUpdates)
-                    .addOnSuccessListener {
-                        _addExpenseResponse.postValue(Result.Success(true))
-                    }
-                    .addOnFailureListener { error ->
-                        FirebaseCrashlytics.getInstance().recordException(error)
-                        ErrorUtils.addErrorToDatabase(error, UserManager.getUserId())
-                        _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${error.message}"))
-                    }
+                    databaseReference.updateChildren(expenseUpdates)
+                        .addOnSuccessListener {
+                            _addExpenseResponse.postValue(Result.Success(true))
+                            getExpenseDetailList()
+                        }
+                        .addOnFailureListener { error ->
+                            FirebaseCrashlytics.getInstance().recordException(error)
+                            ErrorUtils.addErrorToDatabase(error, UserManager.getUserId())
+                            _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${error.message}"))
+                        }
+                }
+
 
             } catch (ex: java.lang.Exception) {
                 _addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${ex.message}"))
                 ErrorUtils.addErrorToDatabase(ex, UserManager.getUserId())
                 FirebaseCrashlytics.getInstance().recordException(ex)
+            }
+        }
+    }
+
+    private fun getExpenseDetailList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            mainExpense.value?.let {
+                val databaseReference = Firebase.database.reference.child("expenses").child(
+                    mainExpense.value!!.expenseId
+                ).child("expenseDetail")
+
+                databaseReference.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            val expenseList = mutableListOf<ExpenseUIModel>()
+
+                            for (expenseSnapshot in dataSnapshot.children) {
+                                val expenseDetailId = expenseSnapshot.key
+                                val expense = expenseSnapshot.getValue(ExpenseDetailModel::class.java)
+                                expense?.let {
+                                    if (expenseDetailId != null) {
+                                        expense.expenseDetailId = expenseDetailId
+                                        val expenseUIModel = ExpenseUIModel()
+                                        mainExpense.value?.let {
+                                            expenseUIModel.expenseId = mainExpense.value!!.expenseId
+                                            expenseUIModel.currencyType = mainExpense.value!!.currencyType
+                                            expenseUIModel.expenseDate = expense.expenseDate
+                                            expenseUIModel.date = DateTimeUtils.getCurrentDateTimeAsString()
+                                            expenseUIModel.amount = expense.amount
+                                            expenseUIModel.expenseType = expense.expenseType
+                                            expenseUIModel.statusId = mainExpense.value!!.statusId
+                                            expenseUIModel.rejectedReason = mainExpense.value!!.rejectedReason
+                                            expenseUIModel.description = mainExpense.value!!.description
+                                            expenseUIModel.userId = mainExpense.value!!.userId
+                                            expenseUIModel.expenseDetailId = expenseDetailId
+                                            expenseList.add(expenseUIModel)
+                                            _expenseList.postValue(expenseList)
+                                        }
+                                    }
+                                }
+                            }
+
+                            _expenseList.postValue(expenseList.sortedByDescending { DateTimeUtils.parseDate(it.date) })
+                        } else {
+                            _expenseList.postValue(emptyList())
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        val errorMessage = "Firebase Database error: ${databaseError.message}"
+                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
+                        FirebaseCrashlytics.getInstance().recordException(Exception(errorMessage))
+                        _expenseList.postValue(emptyList())
+                    }
+                })
+            }
+        }
+    }
+
+    fun createMainExpense(expenseModel: ExpenseMainModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val expensesRef = Firebase.database.getReference("expenses")
+                if(expenseModel.expenseId.isNullOrEmpty()) {
+                    val documentKey = expensesRef.push().key
+
+                    if (documentKey != null) {
+                        expenseModel.expenseId = documentKey
+                        expensesRef.child(documentKey).setValue(expenseModel)
+                            .addOnSuccessListener {
+                                mainExpense.postValue(expenseModel)
+                                _addExpenseResponse.postValue(Result.Success(true))
+                            }
+                            .addOnFailureListener { e ->
+                                FirebaseCrashlytics.getInstance().recordException(e)
+                                _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${e.message}"))
+                            }
+                        } else {
+                            _addExpenseResponse.postValue(Result.Error("Belge kimliği oluşturulamadı."))
+                        }
+                    }
+            } catch (e: Exception) {
+                _addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${e.message}"))
+                ErrorUtils.addErrorToDatabase(e, "")
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }

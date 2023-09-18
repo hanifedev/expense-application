@@ -2,29 +2,33 @@ package com.kiliccambaz.expenseapp.ui.admin.ui.history
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.kiliccambaz.expenseapp.BR
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.HistoryListBinding
+import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseAdapterClickListener
 
-class HistoryAdapter constructor(private val context: Context) : RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>() {
+class HistoryAdapter constructor(private val context: Context, private val showUser: Boolean, private val historyAdapterClickListener: HistoryAdapterClickListener) : RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>() {
 
     class HistoryViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(expenseModel: ExpenseHistoryUIModel?, position: Int) {
+        fun bind(expenseModel: ExpenseUIModel?, position: Int, clickListener: HistoryAdapterClickListener) {
             binding.setVariable(BR.expenseModel, expenseModel)
+            binding.setVariable(BR.clickListener, clickListener)
             binding.setVariable(BR.position, position)
         }
     }
 
-    private var expenseList: List<ExpenseHistoryUIModel>? = arrayListOf()
+    private var expenseList: List<ExpenseUIModel>? = arrayListOf()
 
-    fun updateList(expenseList: List<ExpenseHistoryUIModel>?) {
+    fun updateList(expenseList: List<ExpenseUIModel>?) {
         this.expenseList = expenseList
         notifyDataSetChanged()
     }
@@ -37,7 +41,7 @@ class HistoryAdapter constructor(private val context: Context) : RecyclerView.Ad
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         val expense = expenseList?.get(position)
-        holder.bind(expense, position)
+        holder.bind(expense, position, historyAdapterClickListener)
         when (expense?.expenseType) {
             "Gas" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.gas)
             "Food" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.food)
@@ -69,6 +73,13 @@ class HistoryAdapter constructor(private val context: Context) : RecyclerView.Ad
                 status.setTextColor(context.getColor(R.color.green))
                 status.text = "Paid"
             }
+        }
+
+        val userCard = holder.itemView.findViewById<CardView>(R.id.cardView2)
+        if(showUser) {
+            userCard.visibility = View.VISIBLE
+        } else {
+            userCard.visibility = View.GONE
         }
     }
 

@@ -48,17 +48,30 @@
         tools:layout="@layout/fragment_add_expense">
         <argument
             android:name="expenseModel"
-            app:argType="com.kiliccambaz.expenseapp.data.ExpenseModel"
+            app:argType="com.kiliccambaz.expenseapp.data.ExpenseMainModel"
             app:nullable="true"/>
     </fragment>
     <fragment
         android:id="@+id/waitingExpensesFragment"
         android:name="com.kiliccambaz.expenseapp.ui.manager.WaitingExpensesFragment"
         android:label="fragment_waiting_expenses"
-        tools:layout="@layout/fragment_waiting_expenses" />
+        tools:layout="@layout/fragment_waiting_expenses" >
+        <action
+            android:id="@+id/action_waitingExpensesFragment_to_expenseDetailFragment"
+            app:destination="@id/expenseDetailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/approvedExpenseListFragment"
         android:name="com.kiliccambaz.expenseapp.ui.accountant.ApprovedExpenseListFragment"
         android:label="fragment_approved_expense_list"
         tools:layout="@layout/fragment_approved_expense_list" />
+    <fragment
+        android:id="@+id/expenseDetailFragment"
+        android:name="com.kiliccambaz.expenseapp.ui.manager.expensedetails.ExpenseDetailFragment"
+        android:label="ExpenseDetailFragment">
+        <argument
+            android:name="expenseUIModel"
+            app:argType="com.kiliccambaz.expenseapp.data.ExpenseUIModel"
+            app:nullable="true"/>
+    </fragment>
 </navigation>

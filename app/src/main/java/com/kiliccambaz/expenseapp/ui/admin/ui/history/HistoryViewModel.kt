@@ -7,14 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseHistory
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
+import com.kiliccambaz.expenseapp.data.ExpenseMainModel
 import com.kiliccambaz.expenseapp.data.UserModel
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import com.kiliccambaz.expenseapp.utils.UserManager
@@ -26,13 +25,13 @@ class HistoryViewModel : ViewModel() {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
 
-    private val histories = arrayListOf<ExpenseHistoryUIModel>()
+    private val histories = arrayListOf<ExpenseUIModel>()
 
-        private val _historyList = MutableLiveData<List<ExpenseHistoryUIModel>>()
-    val historyList : LiveData<List<ExpenseHistoryUIModel>> = _historyList
+        private val _historyList = MutableLiveData<List<ExpenseUIModel>>()
+    val historyList : LiveData<List<ExpenseUIModel>> = _historyList
 
-    private val _filteredList = MutableLiveData<List<ExpenseHistoryUIModel>>()
-    val filteredList : LiveData<List<ExpenseHistoryUIModel>?> = _filteredList
+    private val _filteredList = MutableLiveData<List<ExpenseUIModel>>()
+    val filteredList : LiveData<List<ExpenseUIModel>?> = _filteredList
 
     init {
         getExpenseHistoryList()
@@ -49,7 +48,7 @@ class HistoryViewModel : ViewModel() {
                         for (childSnapshot in dataSnapshot.children) {
                             val expense = childSnapshot.getValue(ExpenseHistory::class.java)
                             if (expense != null) {
-                                val expenseHistoryModel = ExpenseHistoryUIModel()
+                                val expenseHistoryModel = ExpenseUIModel()
                                 expenseHistoryModel.date = expense.date
                                 expenseHistoryModel.statusId = expense.status
                                 getExpenseDetail(expense.expenseId, expenseHistoryModel)
@@ -72,7 +71,7 @@ class HistoryViewModel : ViewModel() {
         }
     }
 
-    private fun getExpenseDetail(expenseId: String, expenseHistoryUIModel: ExpenseHistoryUIModel) {
+    private fun getExpenseDetail(expenseId: String, expenseHistoryUIModel: ExpenseUIModel) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val expensesRef = database.getReference("expenses").child(expenseId)
@@ -80,11 +79,9 @@ class HistoryViewModel : ViewModel() {
                 expensesRef.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                        val expense = dataSnapshot.getValue(ExpenseModel::class.java)
+                        val expense = dataSnapshot.getValue(ExpenseMainModel::class.java)
                         if (expense != null) {
                             setUsername(expense.userId) { username ->
-                                expenseHistoryUIModel.expenseType = expense.expenseType
-                                expenseHistoryUIModel.amount = expense.amount
                                 expenseHistoryUIModel.currencyType = expense.currencyType
                                 expenseHistoryUIModel.description = expense.description
                                 expenseHistoryUIModel.rejectedReason = expense.rejectedReason

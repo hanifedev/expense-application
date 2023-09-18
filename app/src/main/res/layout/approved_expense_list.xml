@@ -13,7 +13,7 @@
 
         <variable
             name="expenseModel"
-            type="com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel" />
+            type="com.kiliccambaz.expenseapp.data.ExpenseUIModel" />
 
         <variable
             name="clickListener"

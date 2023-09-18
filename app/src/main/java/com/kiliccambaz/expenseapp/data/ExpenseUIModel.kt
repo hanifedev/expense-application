@@ -1,7 +1,12 @@
 package com.kiliccambaz.expenseapp.data
 
-data class ExpenseHistoryUIModel(var user: String = "",
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class ExpenseUIModel(var user: String = "",
                                  var date: String = "",
+                                 var expenseDate: String = "",
                                  var amount: Double = 0.0,
                                  var description: String = "",
                                  var expenseType: String = "",
@@ -9,4 +14,5 @@ data class ExpenseHistoryUIModel(var user: String = "",
                                  var statusId: Int = 1,
                                  var rejectedReason: String = "",
                                  var expenseId: String = "",
-                                 var userId: String = "")
+                                 var expenseDetailId: String = "",
+                                 var userId: String = "") : Parcelable

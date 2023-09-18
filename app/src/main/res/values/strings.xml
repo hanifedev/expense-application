@@ -54,7 +54,7 @@
     <string name="cancel">Cancel</string>
     <string name="total">Total</string>
     <string name="description_validation">Description cannot be empty</string>
-    <string name="amount_price_validation">Amount must be greater than 5000</string>
+    <string name="amount_price_validation">Amount must be less than 5000</string>
     <string name="amount_validation">Amount cannot be empty</string>
     <string name="currency_type_validation">Currency type cannot be empty</string>
     <string name="expense_type_validation">Expense type cannot be empty</string>
@@ -78,4 +78,8 @@
     <string name="daily_expenses_chart">Daily Expenses Chart</string>
     <string name="all">All</string>
     <string name="register">Don\'t you have an account?</string>
+    <string name="date_validation">Date cannot be empty</string>
+    <string name="date">Tarih</string>
+    <string name="expense_added_successfully">Expense added successfully</string>
+    <string name="date_format_validation">Invalid date</string>
 </resources>

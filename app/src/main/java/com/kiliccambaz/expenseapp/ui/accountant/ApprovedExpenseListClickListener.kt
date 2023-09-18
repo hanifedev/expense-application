@@ -1,10 +1,9 @@
 package com.kiliccambaz.expenseapp.ui.accountant
 
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 
 interface ApprovedExpenseListClickListener {
 
-    fun onPayButtonClick(expenseModel: ExpenseHistoryUIModel)
+    fun onPayButtonClick(expenseModel: ExpenseUIModel)
 
 }

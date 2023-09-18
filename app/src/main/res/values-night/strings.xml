@@ -58,6 +58,10 @@
     <string name="daily_expenses_chart">Daily Expenses Chart</string>
     <string name="all">All</string>
     <string name="register">Don\'t you have an account? Register</string>
+    <string name="date_validation">Date cannot be empty</string>
+    <string name="date">Tarih</string>
+    <string name="expense_added_successfully">Expense added successfully</string>
+    <string name="date_format_validation">Invalid date</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>

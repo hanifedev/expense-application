@@ -10,7 +10,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseMainModel
 import com.kiliccambaz.expenseapp.data.UserModel
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
 import kotlinx.coroutines.Dispatchers
@@ -39,29 +39,29 @@ class ReportsViewModel : ViewModel() {
             databaseReference.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        val expenseList = mutableListOf<ExpenseModel>()
+                        val expenseList = mutableListOf<ExpenseMainModel>()
                         val expensesTypeMap = mutableMapOf<String, Float>()
                         val dailyExpenses = mutableMapOf<String, Float>()
 
                         for (expenseSnapshot in dataSnapshot.children) {
                             val expenseId = expenseSnapshot.key
-                            val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
+                            val expense = expenseSnapshot.getValue(ExpenseMainModel::class.java)
                             expense?.let {
                                 if (expenseId != null) {
                                     expense.expenseId = expenseId
                                 }
                                 expenseList.add(it)
-                                if (expensesTypeMap.containsKey(expense.expenseType)) {
+                            /*    if (expensesTypeMap.containsKey(expense.expenseType)) {
                                     expensesTypeMap[expense.expenseType] = (expensesTypeMap[expense.expenseType]!! + expense.amount).toFloat()
                                 } else {
                                     expensesTypeMap[expense.expenseType] = expense.amount.toFloat()
-                                }
+                                }*/
                                 val date = expense.date.substring(0,10)
-                                if (dailyExpenses.containsKey(date)) {
+                            /*    if (dailyExpenses.containsKey(date)) {
                                     dailyExpenses[date] = (dailyExpenses[date]!! + expense.amount).toFloat()
                                 } else {
                                     dailyExpenses[date] = expense.amount.toFloat()
-                                }
+                                }*/
                             }
                         }
                         _dailyExpense.postValue(dailyExpenses)
@@ -108,12 +108,12 @@ class ReportsViewModel : ViewModel() {
     }
 
     private fun groupExpensesByUser(
-        expensesList: List<ExpenseModel>,
+        expensesList: List<ExpenseMainModel>,
         usersMap: Map<String, String>
     ): Map<String, Float> {
         val userExpensesMap = mutableMapOf<String, Float>()
 
-        for (expense in expensesList) {
+ /*       for (expense in expensesList) {
             val userId = expense.userId
             val amount = expense.amount.toFloat()
 
@@ -128,7 +128,7 @@ class ReportsViewModel : ViewModel() {
                 }
             }
         }
-
+*/
         return userExpensesMap
     }
 

@@ -8,12 +8,11 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseMainModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.data.UserModel
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
@@ -23,11 +22,11 @@ import kotlinx.coroutines.launch
 
 class ApprovedExpenseListViewModel: ViewModel() {
 
-    private val _expenseList = MutableLiveData<List<ExpenseHistoryUIModel>>()
-    val expenseList : LiveData<List<ExpenseHistoryUIModel>> = _expenseList
+    private val _expenseList = MutableLiveData<List<ExpenseUIModel>>()
+    val expenseList : LiveData<List<ExpenseUIModel>> = _expenseList
 
-    private val _filteredList = MutableLiveData<List<ExpenseHistoryUIModel>>()
-    val filteredList : LiveData<List<ExpenseHistoryUIModel>?> = _filteredList
+    private val _filteredList = MutableLiveData<List<ExpenseUIModel>>()
+    val filteredList : LiveData<List<ExpenseUIModel>?> = _filteredList
 
     init {
         fetchWaitingExpenseList { list ->
@@ -35,7 +34,7 @@ class ApprovedExpenseListViewModel: ViewModel() {
         }
     }
 
-    private fun fetchWaitingExpenseList(onExpenseListFetched: (List<ExpenseHistoryUIModel>) -> Unit) {
+    private fun fetchWaitingExpenseList(onExpenseListFetched: (List<ExpenseUIModel>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val databaseReference = Firebase.database.reference
@@ -47,15 +46,13 @@ class ApprovedExpenseListViewModel: ViewModel() {
                             expensesQuery.addValueEventListener(object :
                                 ValueEventListener {
                                 override fun onDataChange(expensesDataSnapshot: DataSnapshot) {
-                                    val expenseList = mutableListOf<ExpenseHistoryUIModel>()
+                                    val expenseList = mutableListOf<ExpenseUIModel>()
 
                                     for (expenseSnapshot in expensesDataSnapshot.children) {
-                                        val expense = expenseSnapshot.getValue(ExpenseModel::class.java)
+                                        val expense = expenseSnapshot.getValue(ExpenseMainModel::class.java)
                                         expense?.let {
                                             setUsername(expense.userId) { username ->
-                                                val expenseHistoryUIModel = ExpenseHistoryUIModel()
-                                                expenseHistoryUIModel.expenseType = expense.expenseType
-                                                expenseHistoryUIModel.amount = expense.amount
+                                                val expenseHistoryUIModel = ExpenseUIModel()
                                                 expenseHistoryUIModel.currencyType = expense.currencyType
                                                 expenseHistoryUIModel.description = expense.description
                                                 expenseHistoryUIModel.rejectedReason = expense.rejectedReason
@@ -113,11 +110,11 @@ class ApprovedExpenseListViewModel: ViewModel() {
         }
     }
 
-    fun updateExpense(expenseHistoryModel: ExpenseHistoryUIModel) {
+    fun updateExpense(expenseHistoryModel: ExpenseUIModel) {
         val expensesRef: DatabaseReference = Firebase.database.getReference("expenses")
 
         try {
-            val expenseModel = ExpenseModel(expenseHistoryModel.amount, expenseHistoryModel.date, expenseHistoryModel.description, expenseHistoryModel.expenseType, expenseHistoryModel.userId, expenseHistoryModel.currencyType, expenseHistoryModel.statusId, expenseHistoryModel.rejectedReason, expenseHistoryModel.expenseId)
+            val expenseModel = ExpenseMainModel(expenseHistoryModel.date, expenseHistoryModel.description, expenseHistoryModel.userId, expenseHistoryModel.currencyType, expenseHistoryModel.statusId, expenseHistoryModel.rejectedReason, expenseHistoryModel.expenseId)
             val updateData = expenseModel.toMap()
 
             expensesRef.child(expenseModel.expenseId).updateChildren(updateData)
@@ -137,7 +134,7 @@ class ApprovedExpenseListViewModel: ViewModel() {
         }
     }
 
-    private fun saveExpenseHistory(expense: ExpenseModel) {
+    private fun saveExpenseHistory(expense: ExpenseMainModel) {
         val expenseMap = HashMap<String, Any>()
         expenseMap["date"] = DateTimeUtils.getCurrentDateTimeAsString()
         expenseMap["expenseId"] = expense.expenseId

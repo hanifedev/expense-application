@@ -8,8 +8,7 @@ import android.widget.TextView
 import androidx.databinding.ViewDataBinding
 import com.kiliccambaz.expenseapp.BR
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.ApprovedExpenseListBinding
 
 
@@ -17,16 +16,16 @@ class ApprovedExpenseListAdapter constructor(private val approvedExpenseListClic
 
     class ApprovedExpenseListViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(expenseModel: ExpenseHistoryUIModel?, clickListener: ApprovedExpenseListClickListener, position: Int) {
+        fun bind(expenseModel: ExpenseUIModel?, clickListener: ApprovedExpenseListClickListener, position: Int) {
             binding.setVariable(BR.expenseModel, expenseModel)
             binding.setVariable(BR.clickListener, clickListener)
             binding.setVariable(BR.position, position)
         }
     }
 
-    private var expenseList: List<ExpenseHistoryUIModel>? = arrayListOf()
+    private var expenseList: List<ExpenseUIModel>? = arrayListOf()
 
-    fun updateList(expenseList: List<ExpenseHistoryUIModel>?) {
+    fun updateList(expenseList: List<ExpenseUIModel>?) {
         this.expenseList = expenseList
         notifyDataSetChanged()
     }

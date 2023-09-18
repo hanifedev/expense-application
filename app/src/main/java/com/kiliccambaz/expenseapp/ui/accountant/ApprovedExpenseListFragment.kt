@@ -10,8 +10,7 @@ import android.widget.CheckBox
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.FragmentApprovedExpenseListBinding
 
 class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener {
@@ -49,7 +48,7 @@ class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener
         return binding.root
     }
 
-    override fun onPayButtonClick(expenseModel: ExpenseHistoryUIModel) {
+    override fun onPayButtonClick(expenseModel: ExpenseUIModel) {
         expenseModel.statusId = 5
         approvedExpenseListViewModel.updateExpense(expenseModel)
     }

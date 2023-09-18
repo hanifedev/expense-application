@@ -3,29 +3,28 @@ package com.kiliccambaz.expenseapp.ui.employee.expenses
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.kiliccambaz.expenseapp.BR
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseMainModel
 import com.kiliccambaz.expenseapp.databinding.ExpenseListBinding
 
 class ExpenseListAdapter constructor(private val context: Context, private val expenseClickListener: ExpenseAdapterClickListener) : RecyclerView.Adapter<ExpenseListAdapter.ExpenseListViewHolder>() {
 
     class ExpenseListViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(expenseModel: ExpenseModel, clickListener: ExpenseAdapterClickListener, position: Int) {
+        fun bind(expenseModel: ExpenseMainModel, clickListener: ExpenseAdapterClickListener, position: Int) {
             binding.setVariable(BR.expenseModel, expenseModel)
             binding.setVariable(BR.clickListener, clickListener)
             binding.setVariable(BR.position, position)
         }
     }
 
-    private var expenseList: List<ExpenseModel> = arrayListOf()
+    private var expenseList: List<ExpenseMainModel> = arrayListOf()
 
-    fun updateList(expenseList: List<ExpenseModel>) {
+    fun updateList(expenseList: List<ExpenseMainModel>) {
         this.expenseList = expenseList
         notifyDataSetChanged()
     }
@@ -39,14 +38,14 @@ class ExpenseListAdapter constructor(private val context: Context, private val e
     override fun onBindViewHolder(holder: ExpenseListViewHolder, position: Int) {
         val expense = expenseList[position]
         holder.bind(expense, expenseClickListener, position)
-        when (expense.expenseType) {
+       /* when (expense.expenseType) {
             "Gas" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.gas)
             "Food" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.food)
             "Taxi" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.taxi)
             "Accommodation" -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.otel)
             else -> holder.itemView.findViewById<ImageView>(R.id.ivExpenseType).setImageResource(R.drawable.expenses)
         }
-
+*/
         val status = holder.itemView.findViewById<TextView>(R.id.tvStatus)
         when (expense.statusId) {
             1 -> {

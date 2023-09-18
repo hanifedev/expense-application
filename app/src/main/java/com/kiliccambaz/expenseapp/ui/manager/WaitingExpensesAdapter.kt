@@ -7,23 +7,23 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.kiliccambaz.expenseapp.BR
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel
+import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.WaitingExpenseListBinding
 
 class WaitingExpensesAdapter(private val clickListener: WaitingExpenseAdapterClickListener) : RecyclerView.Adapter<WaitingExpensesAdapter.WaitingExpenseViewHolder>() {
 
     class WaitingExpenseViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(expenseModel: ExpenseHistoryUIModel?, clickListener: WaitingExpenseAdapterClickListener, position: Int) {
+        fun bind(expenseModel: ExpenseUIModel?, clickListener: WaitingExpenseAdapterClickListener, position: Int) {
             binding.setVariable(BR.clickListener, clickListener)
             binding.setVariable(BR.expenseModel, expenseModel)
             binding.setVariable(BR.position, position)
         }
     }
 
-    private var expenseList: List<ExpenseHistoryUIModel>? = arrayListOf()
+    private var expenseList: List<ExpenseUIModel>? = arrayListOf()
 
-    fun updateList(expenseList: List<ExpenseHistoryUIModel>?) {
+    fun updateList(expenseList: List<ExpenseUIModel>?) {
         this.expenseList = expenseList
         notifyDataSetChanged()
     }

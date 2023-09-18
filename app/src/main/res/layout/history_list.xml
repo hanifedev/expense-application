@@ -13,7 +13,11 @@
 
         <variable
             name="expenseModel"
-            type="com.kiliccambaz.expenseapp.data.ExpenseHistoryUIModel" />
+            type="com.kiliccambaz.expenseapp.data.ExpenseUIModel" />
+
+        <variable
+            name="clickListener"
+            type="com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryAdapterClickListener"/>
 
     </data>
 
@@ -28,6 +32,7 @@
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
+            android:onClick="@{() -> clickListener.onRecyclerViewItemClick(expenseModel, position)}"
             app:cardElevation="3dp"
             app:cardMaxElevation="3dp"
             app:cardUseCompatPadding="true">
@@ -94,7 +99,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="@{String.valueOf(expenseModel.date)}"
+                    android:text="@{String.valueOf(expenseModel.expenseDate)}"
                     app:layout_constraintEnd_toStartOf="@+id/tvStatus"
                     app:layout_constraintStart_toEndOf="@+id/ivExpenseType"
                     app:layout_constraintTop_toBottomOf="@+id/tvDescription" />

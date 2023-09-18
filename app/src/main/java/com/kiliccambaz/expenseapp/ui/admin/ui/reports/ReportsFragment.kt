@@ -130,7 +130,7 @@ class ReportsFragment : Fragment() {
         val data = PieData(dataSet)
         val pieChart = binding.pieChart
         pieChart.data = data
-
+        pieChart.setDrawEntryLabels(true)
         pieChart.setUsePercentValues(true)
         pieChart.description.isEnabled = false
         pieChart.setExtraOffsets(5f, 10f, 5f, 5f)
@@ -197,6 +197,7 @@ class ReportsFragment : Fragment() {
         data.barWidth = 0.3f
         val barChart = binding.barChart
         barChart.data = data
+
         barChart.setDrawBarShadow(false)
 
         barChart.setDrawValueAboveBar(true)

@@ -22,7 +22,6 @@ object ErrorUtils {
             is FirebaseNetworkException -> {
                 ErrorModel(ErrorCodes.NETWORK_ERROR, "Firebase ağ hatası.", userId, "FirebaseNetworkException", Timestamp.now())
             }
-            // Diğer özel hata türleri için ek koşullar ekleyebilirsiniz.
             else -> {
                 ErrorModel(ErrorCodes.UNKNOWN_ERROR,"Diğer Hata Türü", userId,"Bilinmeyen hata türü algılandı.", Timestamp.now())
             }

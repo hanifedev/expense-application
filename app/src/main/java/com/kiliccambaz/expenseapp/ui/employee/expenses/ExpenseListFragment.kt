@@ -12,9 +12,8 @@ import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseModel
+import com.kiliccambaz.expenseapp.data.ExpenseMainModel
 import com.kiliccambaz.expenseapp.databinding.FragmentExpenseListBinding
-import com.kiliccambaz.expenseapp.databinding.FragmentLoginBinding
 
 class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
 
@@ -57,16 +56,14 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
         return binding!!.root
     }
 
-    override fun onRecyclerViewItemClick(model: ExpenseModel, position: Int) {
-        if(model.statusId == 1) {
+    override fun onRecyclerViewItemClick(model: ExpenseMainModel, position: Int) {
+        if(model.statusId == 1 || model.statusId == 3) {
             val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment(model)
             findNavController().navigate(action)
-        } else if(model.statusId == 3) {
-            showDescriptionDetailDialog(model)
         }
     }
 
-    private fun showDescriptionDetailDialog(model: ExpenseModel) {
+    private fun showDescriptionDetailDialog(model: ExpenseMainModel) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_description_detail, null)
         val descriptionTextView = dialogView.findViewById<TextView>(R.id.tvDescription)
 
@@ -93,34 +90,33 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle(R.string.filtering_options)
 
-        val view = layoutInflater.inflate(R.layout.filter_type_options, null)
+        val view = layoutInflater.inflate(R.layout.filter_status_options, null)
         builder.setView(view)
 
         val checkBoxes = listOf(
-            Pair(view.findViewById(R.id.checkBoxTaxi), "Taxi"),
-            Pair(view.findViewById(R.id.checkBoxFood), "Food"),
-            Pair(view.findViewById(R.id.checkBoxGas), "Gas"),
-            Pair(view.findViewById(R.id.checkBoxAccommodation), "Accommodation"),
-            Pair(view.findViewById<CheckBox>(R.id.checkBoxOther), "Other")
+            Pair(view.findViewById<CheckBox>(R.id.checkBoxWaiting), 1),
+            Pair(view.findViewById(R.id.checkBoxApproved), 2),
+            Pair(view.findViewById(R.id.checkBoxChangeStatus), 3),
+            Pair(view.findViewById(R.id.checkBoxRejected), 4),
+            Pair(view.findViewById(R.id.checkBoxPaid), 5)
         )
 
-        val selectedExpenseTypes = mutableListOf<String>()
-
-        checkBoxes.forEach { (checkBox, expenseType) ->
+        val selectedStatusTypes = mutableListOf<Int>()
+        checkBoxes.forEach { (checkBox, statusType) ->
             checkBox.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    selectedExpenseTypes.add(expenseType)
+                    selectedStatusTypes.add(statusType)
                 } else {
-                    selectedExpenseTypes.remove(expenseType)
+                    selectedStatusTypes.remove(statusType)
                 }
             }
         }
 
-        builder.setPositiveButton(getString(R.string.save_button_text)) { dialog, _ ->
-            expenseListViewModel.getExpensesByTypes(selectedExpenseTypes)
+        builder.setPositiveButton(R.string.filter) { dialog, _ ->
+            expenseListViewModel.getExpensesFromStatus(selectedStatusTypes)
             dialog.dismiss()
         }
-        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
             dialog.dismiss()
         }
 
