@@ -63,6 +63,9 @@
     <string name="expense_added_successfully">Expense added successfully</string>
     <string name="date_format_validation">Invalid date</string>
     <string name="payment_complated">Payment complated</string>
+    <string name="expense_updated_successfully">Expense updated successfully</string>
+    <string name="user_monthly_expenses">User Monthly Expenses</string>
+    <string name="monthly_expenses_chart">Monthly Expenses Chart</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>

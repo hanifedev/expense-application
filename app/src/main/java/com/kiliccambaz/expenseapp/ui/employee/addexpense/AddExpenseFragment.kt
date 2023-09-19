@@ -133,6 +133,31 @@ class AddExpenseFragment : Fragment(), HistoryAdapterClickListener {
             }
         }
 
+        addExpenseViewModel.updateExpenseResponse.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                when(result) {
+                    is Result.Success -> {
+                        GlobalScope.launch(Dispatchers.Main) {
+                            Toast.makeText(context, getString(R.string.expense_updated_successfully), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    is Result.Error -> {
+                        GlobalScope.launch(Dispatchers.Main) {
+                            val errorMessage = result.message
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                        }
+                    }
+
+                }
+            }
+        }
+
+        addExpenseViewModel.hideDescription.observe(viewLifecycleOwner) { result ->
+            if(result) {
+                binding!!.cardRejectedStatus.visibility = View.GONE
+            }
+        }
+
         return binding!!.root
     }
 

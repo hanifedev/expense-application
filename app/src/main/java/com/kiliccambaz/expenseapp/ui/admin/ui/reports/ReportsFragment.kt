@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.components.YAxis
@@ -58,8 +60,75 @@ class ReportsFragment : Fragment() {
             createLineChart(dailyExpense)
         }
 
+        reportsViewModel.monthExpense.observe(viewLifecycleOwner) { monthlyExpense ->
+            showMonthlyExpensesBarChart(monthlyExpense)
+        }
+
         return root
     }
+
+    private fun showMonthlyExpensesBarChart(
+        monthlyExpensesMap: Map<String, Map<String, Float>>
+    ) {
+        val barEntriesList = mutableListOf<BarEntry>()
+        val xAxisLabels = mutableListOf<String>()
+
+        // Tüm ayların listesini oluşturun
+        val allMonths = listOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
+
+        // Kullanıcıları temsil eden bir liste alın
+        val distinctUsernames = monthlyExpensesMap.keys.toList()
+
+        // Kullanıcıları farklı renklere otomatik olarak atayın
+        val userColors = distinctUsernames.mapIndexed { index, username ->
+            username to ColorTemplate.VORDIPLOM_COLORS[index % ColorTemplate.VORDIPLOM_COLORS.size]
+        }.toMap()
+
+        // Her bir ay için
+        for (month in allMonths) {
+            // Her bir kullanıcı için
+            for (username in distinctUsernames) {
+                val monthlyExpenses = monthlyExpensesMap[username] ?: emptyMap()
+                val amount = monthlyExpenses[month] ?: 0f
+                barEntriesList.add(BarEntry(xAxisLabels.size.toFloat(), amount))
+                xAxisLabels.add(username)
+            }
+        }
+
+        val dataSet = BarDataSet(barEntriesList, getString(R.string.user_monthly_expenses))
+
+        // Her bir bar için kullanıcı rengini ayarlayın
+        dataSet.colors = barEntriesList.map {
+            userColors[xAxisLabels[it.x.toInt()]] ?: Color.BLACK
+        }
+
+        val barData = BarData(dataSet)
+        val barChart = binding.barChartMonthly
+        val xAxis = barChart.xAxis
+        xAxis.valueFormatter = IndexAxisValueFormatter(xAxisLabels)
+
+        barChart.data = barData
+        barChart.description.isEnabled = false
+        barChart.setFitBars(true)
+        barChart.animateY(1000) // Animasyon süresini ayarlayabilirsiniz
+        barChart.invalidate() // Grafiği güncelleyin
+
+        val legend = barChart.legend
+        legend.isEnabled = true
+
+// Açıklama metni için kullanıcı adlarını ve renkleri ayarlayın
+        val legendEntries = mutableListOf<LegendEntry>()
+        for (username in distinctUsernames) {
+            val color = userColors[username] ?: Color.BLACK
+            val entry = LegendEntry()
+            entry.label = username
+            entry.formColor = color
+            legendEntries.add(entry)
+        }
+        legend.setCustom(legendEntries)
+    }
+
+
 
     private fun createLineChart(dailyExpenses: Map<String, Float>?) {
         val entries = mutableListOf<Entry>()

@@ -32,7 +32,7 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentWaitingExpensesBinding.inflate(layoutInflater)
-        binding!!.toolbar.toolbarTitle.text = "Waiting Expense List"
+        binding!!.toolbarFilter.toolbarTitle.text = "Waiting Expense List"
         waitingViewModel = ViewModelProvider(this)[WaitingExpensesViewModel::class.java]
         waitingExpensesAdapter = WaitingExpensesAdapter(this)
         binding!!.rvWaitingExpenseList.layoutManager = LinearLayoutManager(requireContext())
@@ -46,7 +46,7 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
             waitingExpensesAdapter.updateList(filteredList)
         }
 
-        binding!!.toolbar.filterIcon.setOnClickListener {
+        binding!!.toolbarFilter.filterIcon.setOnClickListener {
             showFilterPopup()
         }
 

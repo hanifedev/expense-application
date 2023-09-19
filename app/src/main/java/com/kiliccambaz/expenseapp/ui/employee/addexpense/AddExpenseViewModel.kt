@@ -27,8 +27,14 @@ class AddExpenseViewModel : ViewModel() {
     private val _addExpenseResponse = MutableLiveData<Result<Boolean>>()
     val addExpenseResponse : LiveData<Result<Boolean>> = _addExpenseResponse
 
+    private val _updateExpenseResponse = MutableLiveData<Result<Boolean>>()
+    val updateExpenseResponse : LiveData<Result<Boolean>> = _updateExpenseResponse
+
     private val _expenseList = MutableLiveData<List<ExpenseUIModel>>()
     val expenseList : LiveData<List<ExpenseUIModel>> = _expenseList
+
+    private val _hideDescription = MutableLiveData<Boolean>()
+    val hideDescription : LiveData<Boolean> = _hideDescription
 
 
     private val mainExpense = MutableLiveData<ExpenseMainModel>()
@@ -84,13 +90,19 @@ class AddExpenseViewModel : ViewModel() {
 
                     databaseReference.updateChildren(expenseUpdates)
                         .addOnSuccessListener {
-                            _addExpenseResponse.postValue(Result.Success(true))
-                            getExpenseDetailList()
+                            _updateExpenseResponse.postValue(Result.Success(true))
+                            if(mainExpense.value!!.statusId == 3) {
+                                mainExpense.value?.let {
+                                    changeStatus(mainExpense.value!!.expenseId)
+                                }
+                            } else {
+                                getExpenseDetailList()
+                            }
                         }
                         .addOnFailureListener { error ->
                             FirebaseCrashlytics.getInstance().recordException(error)
                             ErrorUtils.addErrorToDatabase(error, UserManager.getUserId())
-                            _addExpenseResponse.postValue(Result.Error("Firestore kaydetme hatası: ${error.message}"))
+                            _updateExpenseResponse.postValue(Result.Error("Firestore error: ${error.message}"))
                         }
                 }
 
@@ -102,6 +114,52 @@ class AddExpenseViewModel : ViewModel() {
             }
         }
     }
+
+    private fun changeStatus(expenseId : String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val database = FirebaseDatabase.getInstance()
+                val reference: DatabaseReference = database.getReference("expenses").child(expenseId)
+
+                val updateMap = mutableMapOf<String, Any>()
+                updateMap["statusId"] = 1
+
+                reference.updateChildren(updateMap) { databaseError, _ ->
+                    if (databaseError == null) {
+                        mainExpense.value!!.statusId = 1
+                        _hideDescription.value = true
+                        saveExpenseHistory()
+                        getExpenseDetailList()
+                    }
+                }
+
+            } catch (ex: java.lang.Exception) {
+                _addExpenseResponse.postValue(Result.Error("İşlem başarısız oldu: ${ex.message}"))
+                ErrorUtils.addErrorToDatabase(ex, UserManager.getUserId())
+                FirebaseCrashlytics.getInstance().recordException(ex)
+            }
+        }
+    }
+
+    private fun saveExpenseHistory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val expenseMap = HashMap<String, Any>()
+            expenseMap["date"] = DateTimeUtils.getCurrentDateTimeAsString()
+            expenseMap["expenseId"] = mainExpense.value!!.expenseId
+            expenseMap["status"] = mainExpense.value!!.statusId
+            val expenseRef: DatabaseReference = Firebase.database.getReference("expenseHistory")
+            val documentKey = expenseRef.push().key
+            if (documentKey != null) {
+                expenseRef.child(documentKey).setValue(expenseMap)
+                    .addOnFailureListener { e ->
+                        e.printStackTrace()
+                        ErrorUtils.addErrorToDatabase(e, e.message.toString())
+                        FirebaseCrashlytics.getInstance().recordException(e)
+                    }
+            }
+        }
+    }
+
 
     private fun getExpenseDetailList() {
         viewModelScope.launch(Dispatchers.IO) {
