@@ -79,7 +79,22 @@ class AddExpenseFragment : Fragment(), HistoryAdapterClickListener {
             }
 
             override fun afterTextChanged(s: Editable?) {
+                binding!!.txtInputLayoutCurrency.error = null
+            }
 
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                setCurrencySembol(s.toString())
+            }
+        })
+
+        binding!!.txtDescription.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding!!.txtDescriptionInputLayout.error = null
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {

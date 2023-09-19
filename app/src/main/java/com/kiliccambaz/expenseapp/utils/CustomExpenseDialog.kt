@@ -10,12 +10,15 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.ExpenseDetailModel
 import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.ui.employee.addexpense.AddExpenseViewModel
+import java.lang.Exception
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -72,9 +75,29 @@ class CustomExpenseDialog(context: Context, addExpenseViewModel: AddExpenseViewM
                 { _, selectedYear, selectedMonth, selectedDay ->
                     val selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
                     dateEditText.setText(selectedDate)
+                    dateInputLayout.error = null
                 }, year, month, dayOfMonth)
 
             datePickerDialog.show()
+        }
+
+        amountEditText.doAfterTextChanged {amount ->
+            try {
+                if(!amount.isNullOrEmpty()) {
+                    if(amount.toString().toDouble() > 5000) {
+                        amountInputLayout.error = context.getString(R.string.amount_price_validation)
+                    } else {
+                        amountInputLayout.error = null
+                    }
+                }
+            } catch (ex: Exception) {
+                ErrorUtils.addErrorToDatabase(ex, UserManager.getUserId())
+                FirebaseCrashlytics.getInstance().recordException(ex)
+            }
+        }
+
+        expenseTypeEditText.setOnItemClickListener { _, _, _, _ ->
+            expenseTypeInputLayout.error = null
         }
     }
 
@@ -147,7 +170,7 @@ class CustomExpenseDialog(context: Context, addExpenseViewModel: AddExpenseViewM
         expenseTypeEditText.text = model.expenseType.toEditable()
     }
 
-    fun String.toEditable(): Editable {
+    private fun String.toEditable(): Editable {
         return SpannableStringBuilder(this)
     }
 }
