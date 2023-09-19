@@ -15,11 +15,38 @@
         android:id="@+id/navigation_expenses"
         android:name="com.kiliccambaz.expenseapp.ui.admin.ui.expenses.ExpensesFragment"
         android:label="@string/title_expenses"
-        tools:layout="@layout/fragment_expenses" />
+        tools:layout="@layout/fragment_expenses" >
+        <action
+            android:id="@+id/action_navigation_expenses_to_expenseDetailFragment2"
+            app:destination="@id/expenseDetailFragment2" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_history"
         android:name="com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryFragment"
         android:label="@string/title_history"
-        tools:layout="@layout/fragment_history" />
+        tools:layout="@layout/fragment_history" >
+        <action
+            android:id="@+id/action_navigation_history_to_historyDetailFragment"
+            app:destination="@id/historyDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/expenseDetailFragment2"
+        android:name="com.kiliccambaz.expenseapp.ui.manager.expensedetails.ExpenseDetailFragment"
+        android:label="ExpenseDetailFragment">
+        <argument
+            android:name="expenseUIModel"
+            app:argType="com.kiliccambaz.expenseapp.data.ExpenseUIModel"
+            app:nullable="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/historyDetailFragment"
+        android:name="com.kiliccambaz.expenseapp.ui.admin.ui.history.historydetail.HistoryDetailFragment"
+        android:label="fragment_history_detail"
+        tools:layout="@layout/fragment_history_detail">
+        <argument
+            android:name="expenseUIModel"
+            app:argType="com.kiliccambaz.expenseapp.data.ExpenseUIModel"
+            app:nullable="true"/>
+    </fragment>
 </navigation>

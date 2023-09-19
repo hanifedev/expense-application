@@ -142,7 +142,7 @@ class CustomExpenseDialog(context: Context, addExpenseViewModel: AddExpenseViewM
 
     fun setModel(model: ExpenseUIModel) {
         expenseDetailId = model.expenseDetailId
-        dateEditText.text = model.date.toEditable()
+        dateEditText.text = model.expenseDate.toEditable()
         amountEditText.text = model.amount.toString().toEditable()
         expenseTypeEditText.text = model.expenseType.toEditable()
     }

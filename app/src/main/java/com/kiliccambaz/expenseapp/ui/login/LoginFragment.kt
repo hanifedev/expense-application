@@ -11,8 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.firestore.auth.User
 import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.Result
+import com.kiliccambaz.expenseapp.data.UserRole
 import com.kiliccambaz.expenseapp.databinding.FragmentLoginBinding
 import com.kiliccambaz.expenseapp.ui.admin.AdminActivity
 import com.kiliccambaz.expenseapp.utils.ValidationUtils
@@ -53,19 +55,19 @@ class LoginFragment : Fragment() {
                         when (result) {
                             is Result.Success -> {
                                 when (result.data) {
-                                    1 -> {
+                                    UserRole.EMPLOYEE.value -> {
                                         val action = LoginFragmentDirections.actionFragmentLoginToExpenseListFragment()
                                         findNavController().navigate(action)
                                     }
-                                    2 -> {
+                                    UserRole.MANAGER.value -> {
                                         val action = LoginFragmentDirections.actionFragmentLoginToWaitingExpensesFragment()
                                         findNavController().navigate(action)
                                     }
-                                    3 -> {
+                                    UserRole.ACCOUNTANT.value -> {
                                         val action = LoginFragmentDirections.actionFragmentLoginToApprovedExpenseListFragment()
                                         findNavController().navigate(action)
                                     }
-                                    4 -> {
+                                    UserRole.ADMIN.value -> {
                                         val intent = Intent(requireContext(), AdminActivity::class.java)
                                         startActivity(intent)
                                         requireActivity().finish()

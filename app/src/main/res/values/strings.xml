@@ -82,4 +82,5 @@
     <string name="date">Tarih</string>
     <string name="expense_added_successfully">Expense added successfully</string>
     <string name="date_format_validation">Invalid date</string>
+    <string name="payment_complated">Payment complated</string>
 </resources>

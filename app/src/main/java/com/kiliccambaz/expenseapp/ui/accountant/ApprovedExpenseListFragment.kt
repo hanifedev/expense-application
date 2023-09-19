@@ -7,10 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
 import com.kiliccambaz.expenseapp.data.ExpenseUIModel
+import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.databinding.FragmentApprovedExpenseListBinding
 
 class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener {
@@ -28,7 +30,7 @@ class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener
         _binding = FragmentApprovedExpenseListBinding.inflate(layoutInflater)
         binding.include.toolbarTitle.text = "Approved Expense List"
         approvedExpenseListViewModel = ViewModelProvider(this)[ApprovedExpenseListViewModel::class.java]
-        approvedExpenseListAdapter = ApprovedExpenseListAdapter(this)
+        approvedExpenseListAdapter = ApprovedExpenseListAdapter(requireContext(), this)
         binding.rvApprovedExpenseList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvApprovedExpenseList.adapter = approvedExpenseListAdapter
 
@@ -39,6 +41,18 @@ class ApprovedExpenseListFragment : Fragment(), ApprovedExpenseListClickListener
         approvedExpenseListViewModel.filteredList.observe(viewLifecycleOwner) { filteredList ->
             approvedExpenseListAdapter.updateList(filteredList)
 
+        }
+
+        approvedExpenseListViewModel.updateResponse.observe(viewLifecycleOwner) { response ->
+            when(response) {
+                is Result.Success -> {
+                    if(response.data) {
+                        Toast.makeText(context, getString(R.string.payment_complated), Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                else -> {}
+            }
         }
 
         binding.include.filterIcon.setOnClickListener {

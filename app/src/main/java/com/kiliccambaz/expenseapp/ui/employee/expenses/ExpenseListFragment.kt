@@ -63,29 +63,6 @@ class ExpenseListFragment : Fragment(), ExpenseAdapterClickListener {
         }
     }
 
-    private fun showDescriptionDetailDialog(model: ExpenseMainModel) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_description_detail, null)
-        val descriptionTextView = dialogView.findViewById<TextView>(R.id.tvDescription)
-
-        descriptionTextView.text = model.rejectedReason
-
-        val dialogBuilder = AlertDialog.Builder(context)
-            .setView(dialogView)
-            .setTitle("Description Detail")
-            .setPositiveButton(R.string.update_expense) { dialog, _ ->
-                dialog.dismiss()
-                val action = ExpenseListFragmentDirections.actionExpenseListFragmentToAddExpenseFragment(model)
-                findNavController().navigate(action)
-            }
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.dismiss()
-            }
-
-        val dialog = dialogBuilder.create()
-        dialog.show()
-    }
-
-
     private fun showFilterPopup() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle(R.string.filtering_options)

@@ -1,59 +1,65 @@
-package com.kiliccambaz.expenseapp.ui.admin.ui.history
+package com.kiliccambaz.expenseapp.ui.admin.ui.history.historydetail
 
 import android.app.AlertDialog
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.FragmentHistoryBinding
+import com.kiliccambaz.expenseapp.databinding.FragmentHistoryDetailBinding
 import com.kiliccambaz.expenseapp.ui.admin.ui.expenses.ExpensesAdapter
-import com.kiliccambaz.expenseapp.ui.admin.ui.expenses.ExpensesAdapterClickListener
+import com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryViewModel
+import com.kiliccambaz.expenseapp.ui.employee.addexpense.AddExpenseFragmentArgs
 
-class HistoryFragment : Fragment(), ExpensesAdapterClickListener {
+class HistoryDetailFragment : Fragment() {
 
-    private var _binding: FragmentHistoryBinding? = null
-    private lateinit var historyViewModel: HistoryViewModel
-    private lateinit var expensesAdapter : ExpensesAdapter
-
-    private val binding get() = _binding!!
+    private var _binding: FragmentHistoryDetailBinding? = null
+    private lateinit var historyDetailViewModel: HistoryDetailViewModel
+    private lateinit var historyDetailAdapter : HistoryDetailAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        historyViewModel =
-            ViewModelProvider(this)[HistoryViewModel::class.java]
-        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-        binding.toolbarHistory.toolbarTitle.text = "Expense History List"
-        expensesAdapter = ExpensesAdapter(requireContext(), this)
-        binding.rvHistoryList.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvHistoryList.adapter = expensesAdapter
+        _binding = FragmentHistoryDetailBinding.inflate(inflater, container, false)
+        historyDetailViewModel =
+            ViewModelProvider(this)[HistoryDetailViewModel::class.java]
 
+        _binding!!.toolbarHistory.toolbarTitle.text = "History Detail List"
 
-        historyViewModel.historyList.observe(viewLifecycleOwner) { historyList ->
+        val args: HistoryDetailFragmentArgs by navArgs()
+        val expenseModel = args.expenseUIModel
+
+        expenseModel?.let {
+            historyDetailViewModel.getExpenseHistoryForExpenseId(expenseModel.expenseId)
+        }
+
+        historyDetailAdapter = HistoryDetailAdapter(requireContext())
+        _binding!!.rvHistoryDetail.layoutManager = LinearLayoutManager(requireContext())
+        _binding!!.rvHistoryDetail.adapter = historyDetailAdapter
+
+        historyDetailViewModel.historyList.observe(viewLifecycleOwner) { historyList ->
             historyList?.let {
-                expensesAdapter.updateList(historyList)
+                historyDetailAdapter.updateList(historyList)
             }
         }
 
-        historyViewModel.filteredList.observe(viewLifecycleOwner) { filteredList ->
-            expensesAdapter.updateList(filteredList)
+        historyDetailViewModel.filteredList.observe(viewLifecycleOwner) { filteredList ->
+            historyDetailAdapter.updateList(filteredList)
         }
 
-        binding.toolbarHistory.filterIcon.setOnClickListener {
+
+        _binding!!.toolbarHistory.filterIcon.setOnClickListener {
             showFilterPopup()
         }
 
-        return root
+        return _binding!!.root
     }
 
     private fun showFilterPopup() {
@@ -83,7 +89,7 @@ class HistoryFragment : Fragment(), ExpensesAdapterClickListener {
         }
 
         builder.setPositiveButton(getString(R.string.ok)) { dialog, _ ->
-            historyViewModel.getExpensesFromStatus(selectedStatusTypes)
+            historyDetailViewModel.getExpensesFromStatus(selectedStatusTypes)
             dialog.dismiss()
         }
         builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
@@ -94,13 +100,4 @@ class HistoryFragment : Fragment(), ExpensesAdapterClickListener {
         dialog.show()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun onShowDetailClick(expenseUIModel: ExpenseUIModel) {
-        val action = HistoryFragmentDirections.actionNavigationHistoryToHistoryDetailFragment(expenseUIModel)
-        findNavController().navigate(action)
-    }
 }

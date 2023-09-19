@@ -13,6 +13,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseMainModel
 import com.kiliccambaz.expenseapp.data.ExpenseUIModel
+import com.kiliccambaz.expenseapp.data.Result
 import com.kiliccambaz.expenseapp.data.UserModel
 import com.kiliccambaz.expenseapp.utils.DateTimeUtils
 import com.kiliccambaz.expenseapp.utils.ErrorUtils
@@ -27,6 +28,10 @@ class ApprovedExpenseListViewModel: ViewModel() {
 
     private val _filteredList = MutableLiveData<List<ExpenseUIModel>>()
     val filteredList : LiveData<List<ExpenseUIModel>?> = _filteredList
+
+    private val _updateResponse = MutableLiveData<Result<Boolean>>()
+    val updateResponse : LiveData<Result<Boolean>> = _updateResponse
+
 
     init {
         fetchWaitingExpenseList { list ->
@@ -119,6 +124,7 @@ class ApprovedExpenseListViewModel: ViewModel() {
 
             expensesRef.child(expenseModel.expenseId).updateChildren(updateData)
                 .addOnSuccessListener {
+                    _updateResponse.postValue(Result.Success(true))
                     fetchWaitingExpenseList { list ->
                         _expenseList.value = list
                     }

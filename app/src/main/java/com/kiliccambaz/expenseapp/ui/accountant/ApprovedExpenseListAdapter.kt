@@ -1,5 +1,6 @@
 package com.kiliccambaz.expenseapp.ui.accountant
 
+import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,7 +13,7 @@ import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.ApprovedExpenseListBinding
 
 
-class ApprovedExpenseListAdapter constructor(private val approvedExpenseListClickListener: ApprovedExpenseListClickListener): RecyclerView.Adapter<ApprovedExpenseListAdapter.ApprovedExpenseListViewHolder>() {
+class ApprovedExpenseListAdapter constructor(private val context: Context, private val approvedExpenseListClickListener: ApprovedExpenseListClickListener): RecyclerView.Adapter<ApprovedExpenseListAdapter.ApprovedExpenseListViewHolder>() {
 
     class ApprovedExpenseListViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -50,12 +51,28 @@ class ApprovedExpenseListAdapter constructor(private val approvedExpenseListClic
             }
         }
 
+        val status = holder.itemView.findViewById<TextView>(R.id.tvStatus)
         when (expense?.statusId) {
-            1 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Waiting"
-            2 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Approved"
-            3 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Change Request"
-            4 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Rejected"
-            5 -> holder.itemView.findViewById<TextView>(R.id.tvStatus).text = "Paid"
+            1 -> {
+                status.setTextColor(context.getColor(com.google.android.material.R.color.material_blue_grey_800))
+                status.text = "Waiting"
+            }
+            2 -> {
+                status.setTextColor(context.getColor(androidx.appcompat.R.color.material_deep_teal_500))
+                status.text = "Approved"
+            }
+            3 -> {
+                status.setTextColor(context.getColor(R.color.red))
+                status.text = "Change Request"
+            }
+            4 -> {
+                status.setTextColor(context.getColor(androidx.appcompat.R.color.material_blue_grey_800))
+                status.text = "Rejected"
+            }
+            5 -> {
+                status.setTextColor(context.getColor(R.color.green))
+                status.text = "Paid"
+            }
         }
     }
 

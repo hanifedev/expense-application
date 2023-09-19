@@ -62,6 +62,7 @@
     <string name="date">Tarih</string>
     <string name="expense_added_successfully">Expense added successfully</string>
     <string name="date_format_validation">Invalid date</string>
+    <string name="payment_complated">Payment complated</string>
     <string-array name="expense_types">
         <item>Gas</item>
         <item>Taxi</item>

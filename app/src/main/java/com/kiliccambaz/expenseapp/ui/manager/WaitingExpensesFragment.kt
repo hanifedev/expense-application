@@ -53,14 +53,11 @@ class WaitingExpensesFragment : Fragment(), WaitingExpenseAdapterClickListener {
         waitingViewModel.updateResponse.observe(viewLifecycleOwner) { response ->
             when(response) {
                 is Result.Success -> {
-                    if (response.data) {
-                        Toast.makeText(context, R.string.transaction_successfully, Toast.LENGTH_LONG).show()
-                    }
+                    Toast.makeText(context, response.data, Toast.LENGTH_LONG).show()
                 }
 
                 else -> {}
             }
-
         }
 
         return binding!!.root

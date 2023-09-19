@@ -8,18 +8,23 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
+import com.kiliccambaz.expenseapp.data.ExpenseMainModel
 import com.kiliccambaz.expenseapp.data.ExpenseUIModel
 import com.kiliccambaz.expenseapp.databinding.FragmentExpensesBinding
 import com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryAdapter
 import com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryAdapterClickListener
+import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseAdapterClickListener
+import com.kiliccambaz.expenseapp.ui.employee.expenses.ExpenseListAdapter
+import com.kiliccambaz.expenseapp.ui.manager.WaitingExpensesFragmentDirections
 
-class ExpensesFragment : Fragment(), HistoryAdapterClickListener {
+class ExpensesFragment : Fragment(), ExpensesAdapterClickListener {
 
     private var _binding: FragmentExpensesBinding? = null
     private lateinit var expensesViewModel: ExpensesViewModel
-    private lateinit var expenseListAdapter : HistoryAdapter
+    private lateinit var expenseListAdapter : ExpensesAdapter
 
     private val binding get() = _binding!!
 
@@ -34,7 +39,7 @@ class ExpensesFragment : Fragment(), HistoryAdapterClickListener {
         _binding = FragmentExpensesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         binding.toolbarExpensesTitle.text = "Expense List"
-        expenseListAdapter = HistoryAdapter( requireContext(), true, this)
+        expenseListAdapter = ExpensesAdapter(requireContext(), this)
         binding.rvExpenseList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvExpenseList.adapter = expenseListAdapter
 
@@ -96,7 +101,9 @@ class ExpensesFragment : Fragment(), HistoryAdapterClickListener {
         _binding = null
     }
 
-    override fun onRecyclerViewItemClick(model: ExpenseUIModel, position: Int) {
-        TODO("Not yet implemented")
+    override fun onShowDetailClick(expenseUIModel: ExpenseUIModel) {
+        val action = ExpensesFragmentDirections.actionNavigationExpensesToExpenseDetailFragment2(expenseUIModel)
+        findNavController().navigate(action)
     }
+
 }

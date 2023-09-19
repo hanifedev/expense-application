@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.auth.User
 import com.google.firebase.ktx.Firebase
 import com.kiliccambaz.expenseapp.data.ExpenseDetailModel
 import com.kiliccambaz.expenseapp.data.ExpenseMainModel
@@ -33,8 +34,8 @@ class WaitingExpensesViewModel : ViewModel() {
     private val _filteredList = MutableLiveData<List<ExpenseUIModel>>()
     val filteredList : LiveData<List<ExpenseUIModel>?> = _filteredList
 
-    private val _updateResponse = MutableLiveData<Result<Boolean>>()
-    val updateResponse : LiveData<Result<Boolean>> = _updateResponse
+    private val _updateResponse = MutableLiveData<Result<String>>()
+    val updateResponse : LiveData<Result<String>> = _updateResponse
 
     private val _expenseDetailList = MutableLiveData<List<ExpenseUIModel>>()
     val expenseDetailList : LiveData<List<ExpenseUIModel>> = _expenseDetailList
@@ -44,7 +45,7 @@ class WaitingExpensesViewModel : ViewModel() {
 
     init {
         fetchWaitingExpenseList { list ->
-            _expenseList.value = list
+            _expenseList.value = list.sortedByDescending { DateTimeUtils.parseDate(it.date) }
         }
     }
 
@@ -109,7 +110,7 @@ class WaitingExpensesViewModel : ViewModel() {
                                         "Firebase Realtime Database error: ${expensesDatabaseError.message}"
                                     ErrorUtils.addErrorToDatabase(
                                         java.lang.Exception(errorMessage),
-                                        ""
+                                        UserManager.getUserId()
                                     )
                                     FirebaseCrashlytics.getInstance()
                                         .recordException(java.lang.Exception(errorMessage))
@@ -124,7 +125,7 @@ class WaitingExpensesViewModel : ViewModel() {
                     override fun onCancelled(usersDatabaseError: DatabaseError) {
                         val errorMessage =
                             "Firebase Realtime Database error: ${usersDatabaseError.message}"
-                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
+                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), UserManager.getUserId())
                         FirebaseCrashlytics.getInstance()
                             .recordException(java.lang.Exception(errorMessage))
                         onExpenseListFetched(emptyList())
@@ -175,7 +176,12 @@ class WaitingExpensesViewModel : ViewModel() {
 
             expensesRef.child(expenseModel.expenseId).updateChildren(updateData)
                 .addOnSuccessListener {
-                    _updateResponse.postValue(Result.Success(true))
+                    val message = if(expenseModel.statusId == 2) {
+                        expenseModel.description + " expense was approved"
+                    } else {
+                        expenseModel.description + " expense was rejected"
+                    }
+                    _updateResponse.postValue(Result.Success(message))
                     fetchWaitingExpenseList { list ->
                         _expenseList.value = list
                     }
@@ -271,7 +277,7 @@ class WaitingExpensesViewModel : ViewModel() {
 
                     override fun onCancelled(databaseError: DatabaseError) {
                         val errorMessage = "Firebase Database error: ${databaseError.message}"
-                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), "")
+                        ErrorUtils.addErrorToDatabase(java.lang.Exception(errorMessage), UserManager.getUserId())
                         FirebaseCrashlytics.getInstance().recordException(Exception(errorMessage))
                         _expenseDetailList.postValue(emptyList())
                     }
