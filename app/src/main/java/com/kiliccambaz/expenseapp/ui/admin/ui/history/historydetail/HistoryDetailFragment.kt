@@ -11,11 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kiliccambaz.expenseapp.R
-import com.kiliccambaz.expenseapp.databinding.FragmentHistoryBinding
 import com.kiliccambaz.expenseapp.databinding.FragmentHistoryDetailBinding
-import com.kiliccambaz.expenseapp.ui.admin.ui.expenses.ExpensesAdapter
-import com.kiliccambaz.expenseapp.ui.admin.ui.history.HistoryViewModel
-import com.kiliccambaz.expenseapp.ui.employee.addexpense.AddExpenseFragmentArgs
 
 class HistoryDetailFragment : Fragment() {
 
@@ -37,7 +33,7 @@ class HistoryDetailFragment : Fragment() {
         val expenseModel = args.expenseUIModel
 
         expenseModel?.let {
-            historyDetailViewModel.getExpenseHistoryForExpenseId(expenseModel.expenseId)
+            historyDetailViewModel.getExpenseHistoryForExpenseId(expenseModel.expenseId, expenseModel.userId)
         }
 
         historyDetailAdapter = HistoryDetailAdapter(requireContext())

@@ -64,6 +64,7 @@ class HistoryViewModel : ViewModel() {
                                     expenseHistoryUIModel.statusId = expense.statusId
                                     expenseHistoryUIModel.date = expense.date
                                     expenseHistoryUIModel.expenseId = expense.expenseId
+                                    expenseHistoryUIModel.userId = expense.userId
                                     expenseHistoryUIModel.user = username
                                     histories.add(expenseHistoryUIModel)
                                     onExpenseListFetched(histories)
