@@ -2,6 +2,7 @@ package com.kiliccambaz.expenseapp.ui.admin.ui.reports
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.LargeValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.mikephil.charting.utils.MPPointF
 import com.kiliccambaz.expenseapp.R
@@ -67,9 +69,7 @@ class ReportsFragment : Fragment() {
         return root
     }
 
-    private fun showMonthlyExpensesBarChart(
-        monthlyExpensesMap: Map<String, Map<String, Float>>
-    ) {
+    private fun showMonthlyExpensesBarChart(monthlyExpensesMap: Map<String, Map<String, Float>>) {
         val barEntriesList = mutableListOf<BarEntry>()
         val xAxisLabels = mutableListOf<String>()
 
@@ -90,42 +90,67 @@ class ReportsFragment : Fragment() {
             for (username in distinctUsernames) {
                 val monthlyExpenses = monthlyExpensesMap[username] ?: emptyMap()
                 val amount = monthlyExpenses[month] ?: 0f
-                barEntriesList.add(BarEntry(xAxisLabels.size.toFloat(), amount))
-                xAxisLabels.add(username)
+                barEntriesList.add(BarEntry(barEntriesList.size.toFloat(), amount))
             }
+            xAxisLabels.add(month)
         }
 
         val dataSet = BarDataSet(barEntriesList, getString(R.string.user_monthly_expenses))
 
         // Her bir bar için kullanıcı rengini ayarlayın
-        dataSet.colors = barEntriesList.map {
-            userColors[xAxisLabels[it.x.toInt()]] ?: Color.BLACK
+        dataSet.colors = barEntriesList.mapIndexed { index, _ ->
+            userColors[distinctUsernames[index % distinctUsernames.size]] ?: Color.BLACK
         }
 
         val barData = BarData(dataSet)
         val barChart = binding.barChartMonthly
         val xAxis = barChart.xAxis
-        xAxis.valueFormatter = IndexAxisValueFormatter(xAxisLabels)
+// Eksen etiketlerini aylara dönüştürün
+        xAxis.valueFormatter = IndexAxisValueFormatter(allMonths.map { getMonthName(it) })
+        xAxis.setDrawGridLines(false)
+        xAxis.setDrawAxisLine(true)
+        xAxis.granularity = 1f
+
+        // Sol eksende büyük değerler için özelleştirmeler
+        val leftAxis = barChart.axisLeft
+        leftAxis.valueFormatter = LargeValueFormatter()
+        leftAxis.setDrawGridLines(false)
+        leftAxis.spaceTop = 35f
+        leftAxis.axisMinimum = 0f
+
+        barChart.axisRight.isEnabled = false
 
         barChart.data = barData
         barChart.description.isEnabled = false
-        barChart.setFitBars(true)
-        barChart.animateY(1000) // Animasyon süresini ayarlayabilirsiniz
-        barChart.invalidate() // Grafiği güncelleyin
+        barChart.animateY(1000)
+        barChart.invalidate()
 
         val legend = barChart.legend
         legend.isEnabled = true
+        legend.setDrawInside(true)
+        legend.xEntrySpace = 50f
+        legend.yEntrySpace = 30f
+        legend.textSize = 12f
 
-// Açıklama metni için kullanıcı adlarını ve renkleri ayarlayın
+        // Açıklama metni için kullanıcı adlarını ve renkleri ayarlayın
         val legendEntries = mutableListOf<LegendEntry>()
         for (username in distinctUsernames) {
             val color = userColors[username] ?: Color.BLACK
             val entry = LegendEntry()
             entry.label = username
             entry.formColor = color
+            entry.formLineWidth = 4f
             legendEntries.add(entry)
         }
         legend.setCustom(legendEntries)
+    }
+
+    private fun getMonthName(monthNumber: String): String {
+        val monthNames = arrayOf("January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        )
+        val index = monthNumber.toIntOrNull()?.let { it - 1 } ?: 0
+        return monthNames.getOrNull(index) ?: ""
     }
 
 
